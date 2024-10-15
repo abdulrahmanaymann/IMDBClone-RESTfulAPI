@@ -1,0 +1,18 @@
+﻿using IMDbClone.Core.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace IMDbClone.DataAccess.Data
+{
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+
+        public DbSet<User> Users { get; set; }
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+    }
+}
