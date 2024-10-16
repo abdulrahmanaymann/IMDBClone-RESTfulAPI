@@ -1,5 +1,7 @@
 using IMDbClone.Business.Mapper;
 using IMDbClone.DataAccess.Data;
+using IMDbClone.DataAccess.Repository;
+using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace IMDbClone.WebAPI
@@ -17,7 +19,10 @@ namespace IMDbClone.WebAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            // Register the AutoMapper with the DI container
             builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
