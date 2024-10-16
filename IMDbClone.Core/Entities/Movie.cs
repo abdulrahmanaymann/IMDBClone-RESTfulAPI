@@ -24,6 +24,14 @@ namespace IMDbClone.Core.Entities
         public List<Rating> Ratings { get; set; } = new List<Rating>();
         public List<Review> Reviews { get; set; } = new List<Review>();
 
+        // Dynamic property to split the comma-separated cast list at runtime (not stored in the database)
+        [NotMapped]
+        public List<string> CastList
+        {
+            get => Cast.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        }
+
         // Dynamic property to calculate the average rating at runtime (not stored in the database)
         [NotMapped]
         public decimal AverageRating => Ratings.Count > 0 ? Ratings.Average(r => r.Score) : 0;
