@@ -8,7 +8,7 @@ namespace IMDbClone.DataAccess.Repository
     {
         private readonly ApplicationDbContext _context;
 
-        private IDbContextTransaction? _transaction; // Made nullable
+        private IDbContextTransaction? _transaction;
 
         public IMovieRepository Movie { get; private set; }
         public IRatingRepository Rating { get; private set; }

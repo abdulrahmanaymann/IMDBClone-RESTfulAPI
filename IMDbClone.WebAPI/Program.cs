@@ -1,4 +1,6 @@
 using IMDbClone.Business.Mapper;
+using IMDbClone.Business.Services;
+using IMDbClone.Business.Services.IServices;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository;
 using IMDbClone.DataAccess.Repository.IRepository;
@@ -23,6 +25,10 @@ namespace IMDbClone.WebAPI
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Services.AddScoped<IMovieService, MovieService>();
+            builder.Services.AddScoped<IRatingService, RatingService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
