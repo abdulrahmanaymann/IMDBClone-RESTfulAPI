@@ -28,8 +28,13 @@ namespace IMDbClone.Core.Entities
         [NotMapped]
         public List<string> CastList
         {
-            get => Cast.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            get => string.IsNullOrEmpty(Cast)
+                ? new List<string>()
+                : Cast.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+            set => Cast = value != null && value.Any()
+                ? string.Join(',', value)
+                : string.Empty;
         }
 
         // Dynamic property to calculate the average rating at runtime (not stored in the database)

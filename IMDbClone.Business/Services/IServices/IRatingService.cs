@@ -8,7 +8,7 @@ namespace IMDbClone.Business.Services.IServices
 
         Task<RatingDTO> GetRatingByIdAsync(int id);
 
-        Task<CreateRatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO);
+        Task<RatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO);
 
         Task<UpdateRatingDTO> UpdateRatingAsync(int id, UpdateRatingDTO ratingDTO);
 

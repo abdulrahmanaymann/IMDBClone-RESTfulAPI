@@ -21,7 +21,7 @@ namespace IMDbClone.Business.Services
         {
             try
             {
-                var reviews = await _unitOfWork.Review.GetAllAsync();
+                var reviews = await _unitOfWork.Review.GetAllAsync(includeProperties: "User,Movie");
                 return _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
             }
             catch (Exception ex)
@@ -32,7 +32,7 @@ namespace IMDbClone.Business.Services
 
         public async Task<ReviewDTO> GetReviewByIdAsync(int id)
         {
-            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id);
+            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id, includeProperties: "User,Movie");
             if (review == null)
             {
                 throw new KeyNotFoundException($"Review with ID {id} not found.");
@@ -41,7 +41,7 @@ namespace IMDbClone.Business.Services
             return _mapper.Map<ReviewDTO>(review);
         }
 
-        public async Task<CreateReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO)
+        public async Task<ReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO)
         {
             var existingReview = await _unitOfWork.Review.GetAsync(u => u.UserId == reviewDTO.UserId && u.MovieId == reviewDTO.MovieId);
             if (existingReview != null)
@@ -52,7 +52,7 @@ namespace IMDbClone.Business.Services
             var review = _mapper.Map<Review>(reviewDTO);
             await _unitOfWork.Review.AddAsync(review);
 
-            return _mapper.Map<CreateReviewDTO>(review);
+            return _mapper.Map<ReviewDTO>(review);
         }
 
         public async Task<UpdateReviewDTO> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO)

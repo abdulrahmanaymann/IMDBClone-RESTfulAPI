@@ -8,7 +8,7 @@ namespace IMDbClone.Business.Services.IServices
 
         Task<ReviewDTO> GetReviewByIdAsync(int id);
 
-        Task<CreateReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO);
+        Task<ReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO);
 
         Task<UpdateReviewDTO> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO);
 

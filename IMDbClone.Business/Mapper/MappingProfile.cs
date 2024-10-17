@@ -13,6 +13,9 @@ namespace IMDbClone.Business.Mapper
         {
             CreateMap<Movie, MovieDTO>()
                 .ForMember(dest => dest.Cast, opt => opt.MapFrom(src => src.CastList))
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
+                .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.Reviews ?? new List<Review>()))
+                .ForMember(dest => dest.Ratings, opt => opt.MapFrom(src => src.Ratings ?? new List<Rating>()))
                 .ReverseMap();
 
             CreateMap<Movie, CreateMovieDTO>()

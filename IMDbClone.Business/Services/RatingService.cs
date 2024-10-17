@@ -21,7 +21,7 @@ namespace IMDbClone.Business.Services
         {
             try
             {
-                var ratings = await _unitOfWork.Rating.GetAllAsync();
+                var ratings = await _unitOfWork.Rating.GetAllAsync(includeProperties: "User,Movie");
                 return _mapper.Map<IEnumerable<RatingDTO>>(ratings);
             }
             catch (Exception ex)
@@ -32,7 +32,7 @@ namespace IMDbClone.Business.Services
 
         public async Task<RatingDTO> GetRatingByIdAsync(int id)
         {
-            var rating = await _unitOfWork.Rating.GetAsync(u => u.Id == id);
+            var rating = await _unitOfWork.Rating.GetAsync(u => u.Id == id, includeProperties: "User,Movie");
             if (rating == null)
             {
                 throw new KeyNotFoundException($"Rating with ID {id} not found.");
@@ -41,7 +41,7 @@ namespace IMDbClone.Business.Services
             return _mapper.Map<RatingDTO>(rating);
         }
 
-        public async Task<CreateRatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO)
+        public async Task<RatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO)
         {
             if (ratingDTO == null)
             {
@@ -57,7 +57,7 @@ namespace IMDbClone.Business.Services
             var rating = _mapper.Map<Rating>(ratingDTO);
             await _unitOfWork.Rating.AddAsync(rating);
 
-            return _mapper.Map<CreateRatingDTO>(rating);
+            return _mapper.Map<RatingDTO>(rating);
         }
 
         public async Task<UpdateRatingDTO> UpdateRatingAsync(int id, UpdateRatingDTO ratingDTO)

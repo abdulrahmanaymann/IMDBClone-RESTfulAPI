@@ -21,7 +21,7 @@ namespace IMDbClone.Business.Services
         {
             try
             {
-                var movies = await _unitOfWork.Movie.GetAllAsync();
+                var movies = await _unitOfWork.Movie.GetAllAsync(includeProperties: "Reviews,Ratings");
                 return _mapper.Map<IEnumerable<MovieDTO>>(movies);
             }
             catch (Exception ex)
@@ -32,16 +32,12 @@ namespace IMDbClone.Business.Services
 
         public async Task<MovieDTO> GetMovieByIdAsync(int id)
         {
-            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id);
-            if (movie == null)
-            {
-                throw new KeyNotFoundException($"Movie with ID {id} not found.");
-            }
-
-            return _mapper.Map<MovieDTO>(movie);
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id, includeProperties: "Reviews,Ratings");
+            return movie == null ? throw new KeyNotFoundException($"Movie with ID {id} not found.")
+                : _mapper.Map<MovieDTO>(movie);
         }
 
-        public async Task<CreateMovieDTO> CreateMovieAsync(CreateMovieDTO movieDTO)
+        public async Task<MovieDTO> CreateMovieAsync(CreateMovieDTO movieDTO)
         {
             var existingMovie = await _unitOfWork.Movie.GetAsync(u => u.Title == movieDTO.Title);
             if (existingMovie != null)
@@ -52,27 +48,17 @@ namespace IMDbClone.Business.Services
             var movie = _mapper.Map<Movie>(movieDTO);
             await _unitOfWork.Movie.AddAsync(movie);
 
-            return _mapper.Map<CreateMovieDTO>(movie);
+            return _mapper.Map<MovieDTO>(movie);
         }
 
         public async Task<UpdateMovieDTO> UpdateMovieAsync(int id, UpdateMovieDTO movieDTO)
         {
-            if (movieDTO == null)
-            {
-                throw new ArgumentNullException(nameof(movieDTO));
-            }
+            ArgumentNullException.ThrowIfNull(movieDTO);
 
-            if (id <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(id));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
 
-            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id);
-            if (movie == null)
-            {
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id) ??
                 throw new KeyNotFoundException($"Movie with ID {id} not found.");
-            }
-
             _mapper.Map(movieDTO, movie);
             await _unitOfWork.Movie.UpdateAsync(movie);
 
@@ -81,12 +67,8 @@ namespace IMDbClone.Business.Services
 
         public async Task DeleteMovieAsync(int id)
         {
-            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id);
-            if (movie == null)
-            {
+            var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id) ??
                 throw new KeyNotFoundException($"Movie with ID {id} not found.");
-            }
-
             await _unitOfWork.Movie.RemoveAsync(movie);
         }
     }

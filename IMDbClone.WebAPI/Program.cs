@@ -5,6 +5,7 @@ using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Converters;
 
 namespace IMDbClone.WebAPI
 {
@@ -13,6 +14,14 @@ namespace IMDbClone.WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling
+                                = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
 
             // Add services to the container.
             // Register the ApplicationDbContext with the DI container
@@ -30,7 +39,6 @@ namespace IMDbClone.WebAPI
             builder.Services.AddScoped<IRatingService, RatingService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
 
-            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

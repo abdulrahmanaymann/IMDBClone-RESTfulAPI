@@ -8,7 +8,7 @@ namespace IMDbClone.Business.Services.IServices
 
         Task<MovieDTO> GetMovieByIdAsync(int id);
 
-        Task<CreateMovieDTO> CreateMovieAsync(CreateMovieDTO movieDTO);
+        Task<MovieDTO> CreateMovieAsync(CreateMovieDTO movieDTO);
 
         Task<UpdateMovieDTO> UpdateMovieAsync(int id, UpdateMovieDTO movieDTO);
 

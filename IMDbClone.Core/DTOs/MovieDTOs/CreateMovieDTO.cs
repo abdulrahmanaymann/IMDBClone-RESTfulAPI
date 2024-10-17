@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using IMDbClone.Core.Enums;
-using IMDbClone.Core.Validation;
 
 namespace IMDbClone.Core.DTOs.MovieDTOs
 {
@@ -28,8 +27,8 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
         public string Director { get; set; }
 
         [Required]
-        [StringLength(500, MinimumLength = 10, ErrorMessage = "Cast must be between 10 and 500 characters.")]
-        [ValidCast]
+        //[StringLength(500, MinimumLength = 10, ErrorMessage = "Cast must be between 10 and 500 characters.")]
+        //[ValidCast]
         public List<string> Cast { get; set; } = new List<string>();
 
         [Required]
