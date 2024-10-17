@@ -11,7 +11,7 @@ namespace IMDbClone.Core.DTOs.RatingDTOs
         public decimal Score { get; set; }
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [Required]
         public int MovieId { get; set; }

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using IMDbClone.Core.DTOs.RatingDTOs;
+﻿using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
 
 namespace IMDbClone.Core.DTOs.UserDTOs
@@ -8,12 +7,9 @@ namespace IMDbClone.Core.DTOs.UserDTOs
     {
         public int Id { get; set; }
 
-        [Required]
+        public string UserName { get; set; } = string.Empty;
 
-        public string UserName { get; set; }
-
-        [Required]
-        public string Password { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         public List<RatingDTO> Ratings { get; set; } = new List<RatingDTO>();
 

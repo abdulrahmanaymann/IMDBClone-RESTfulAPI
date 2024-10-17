@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IMDbClone.Core.DTOs.AuthDTOs;
 using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
@@ -34,7 +35,9 @@ namespace IMDbClone.Business.Mapper
             CreateMap<Review, CreateReviewDTO>().ReverseMap();
             CreateMap<Review, UpdateReviewDTO>().ReverseMap();
 
-            CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
+            CreateMap<ApplicationUser, LoginResponseDTO>();
+            CreateMap<RegisterationRequestDTO, ApplicationUser>();
         }
     }
 }

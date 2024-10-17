@@ -14,12 +14,15 @@ namespace IMDbClone.DataAccess.Repository
         public IRatingRepository Rating { get; private set; }
         public IReviewRepository Review { get; private set; }
 
+        public IUserRepository User { get; private set; }
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
             Movie = new MovieRepository(_context);
             Rating = new RatingRepository(_context);
             Review = new ReviewRepository(_context);
+            User = new UserRepository(_context);
         }
 
         public async Task BeginTransactionAsync()

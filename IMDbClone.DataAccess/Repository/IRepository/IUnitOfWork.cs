@@ -8,6 +8,8 @@
 
         IReviewRepository Review { get; }
 
+        IUserRepository User { get; }
+
         Task BeginTransactionAsync();
 
         Task CommitAsync();

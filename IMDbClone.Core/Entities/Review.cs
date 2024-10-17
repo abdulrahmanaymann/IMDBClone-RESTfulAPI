@@ -12,10 +12,10 @@ namespace IMDbClone.Core.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public ApplicationUser User { get; set; }
 
         public int MovieId { get; set; }
 
