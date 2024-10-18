@@ -20,14 +20,13 @@ namespace IMDbClone.Core.Validation
                 return new ValidationResult("Full name cannot contain special characters.");
             }
 
-            // check for other conditions (e.g., minimum length)
+            // Check for other conditions (e.g., minimum length)
             if (fullName.Split(' ').Length < 2)
             {
                 return new ValidationResult("Full name must contain at least a first name and a last name.");
             }
 
-            return ValidationResult.Success ?? new ValidationResult("Full name is invalid.");
-
+            return ValidationResult.Success;
         }
     }
 }

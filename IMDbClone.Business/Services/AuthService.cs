@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Net;
+using AutoMapper;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.AuthDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.Entities;
+using IMDbClone.Core.Responses;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
 
@@ -66,34 +68,46 @@ namespace IMDbClone.Business.Services
             };
         }
 
-        public async Task<UserDTO> RegisterAsync(RegisterationRequestDTO registerDTO)
+        public async Task<APIResponse<UserDTO>> RegisterAsync(RegisterationRequestDTO registerDTO)
         {
             bool isUserUnique = await _unitOfWork.User.IsUniqueUser(registerDTO.UserName);
             if (!isUserUnique)
             {
-                throw new Exception("User already exists! Please try again with a different username.");
+                return APIResponse<UserDTO>.CreateErrorResponse(
+                    new List<string> { "User already exists! Please try again with a different username." },
+                    HttpStatusCode.BadRequest);
             }
 
-            // step 1: create a new user
+            // Step 1: create a new user
             var user = _mapper.Map<ApplicationUser>(registerDTO);
             try
             {
-                // step 2: create the user
+                // Step 2: create the user
                 var result = await _userManager.CreateAsync(user, registerDTO.Password);
                 if (!result.Succeeded)
                 {
-                    throw new Exception("User creation failed! Please check user details and try again.");
+                    // Collecting error messages from the result
+                    var errors = result.Errors.Select(e => e.Description).ToList();
+                    return APIResponse<UserDTO>.CreateErrorResponse(errors, HttpStatusCode.BadRequest);
                 }
 
-                // step 3: add user to the default role
+                // Step 3: add user to the default role
+                var roleExists = await _roleManager.RoleExistsAsync("User");
+                if (!roleExists)
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("User"));
+                }
+
                 await _userManager.AddToRoleAsync(user, "User");
 
-                return _mapper.Map<UserDTO>(user);
+                var userDTO = _mapper.Map<UserDTO>(user);
+                return APIResponse<UserDTO>.CreateSuccessResponse(userDTO);
             }
-
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while creating the user. Please try again later.", ex);
+                return APIResponse<UserDTO>.CreateErrorResponse(
+                    new List<string> { "An error occurred while creating the user. Please try again later." },
+                    HttpStatusCode.InternalServerError);
             }
         }
     }

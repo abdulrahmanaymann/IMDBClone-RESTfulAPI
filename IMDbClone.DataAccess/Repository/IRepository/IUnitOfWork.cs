@@ -1,6 +1,6 @@
 ﻿namespace IMDbClone.DataAccess.Repository.IRepository
 {
-    public interface IUnitOfWork : IDisposable, IAsyncDisposable
+    public interface IUnitOfWork
     {
         IMovieRepository Movie { get; }
 
@@ -9,11 +9,5 @@
         IReviewRepository Review { get; }
 
         IUserRepository User { get; }
-
-        Task BeginTransactionAsync();
-
-        Task CommitAsync();
-
-        Task RollbackAsync();
     }
 }
