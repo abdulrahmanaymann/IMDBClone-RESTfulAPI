@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,13 @@ namespace IMDbClone.DataAccess.Repository
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<PaginatedResult<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            string? includeProperties = null,
+            Expression<Func<T, object>>? orderByExpression = null,
+            bool isAscending = true,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             IQueryable<T> query = _dbSet;
             if (filter != null)
@@ -33,7 +40,23 @@ namespace IMDbClone.DataAccess.Repository
                 }
             }
 
-            return await query.ToListAsync();
+            if (orderByExpression != null)
+            {
+                query = isAscending ? query.OrderBy(orderByExpression) : query.OrderByDescending(orderByExpression);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            // Apply pagination
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return new PaginatedResult<T>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)

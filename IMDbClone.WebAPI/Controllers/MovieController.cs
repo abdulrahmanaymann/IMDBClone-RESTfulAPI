@@ -1,7 +1,11 @@
-﻿using System.Net;
+﻿using System.Linq.Expressions;
+using System.Net;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.MovieDTOs;
+using IMDbClone.Core.Entities;
+using IMDbClone.Core.Enums;
 using IMDbClone.Core.Responses;
+using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IMDbClone.WebAPI.Controllers
@@ -18,13 +22,88 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? search,
+            [FromQuery] string? genre,
+            [FromQuery] string? director,
+            [FromQuery] string? language,
+            [FromQuery] DateTime? releaseDate,
+            [FromQuery] string? sortBy,
+            [FromQuery] bool isAscending = true,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                var movies = await _movieService.GetAllMoviesAsync();
-                var response = APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies);
-                return Ok(response);
+                var filter = PredicateBuilder.New<Movie>(true);
+                bool isValidFilter = true;
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    filter = filter.And(m => m.Title.Contains(search) || m.Synopsis.Contains(search));
+                }
+
+                if (!string.IsNullOrEmpty(genre))
+                {
+                    if (Enum.TryParse<Genre>(genre, true, out var genreEnum))
+                    {
+                        filter = filter.And(m => m.Genre == genreEnum);
+                    }
+                    else
+                    {
+                        isValidFilter = false;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(director))
+                {
+                    filter = filter.And(m => m.Director == director);
+                }
+
+                if (!string.IsNullOrEmpty(language))
+                {
+                    filter = filter.And(m => m.Language == language);
+                }
+
+                if (releaseDate.HasValue)
+                {
+                    filter = filter.And(m => m.ReleaseDate.Date == releaseDate.Value.Date);
+                }
+
+                Expression<Func<Movie, object>>? orderByExpression = null;
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderByExpression = sortBy.ToLower() switch
+                    {
+                        "title" => m => m.Title,
+                        "releasedate" => m => m.ReleaseDate,
+                        "genre" => m => m.Genre,
+                        "director" => m => m.Director,
+                        "language" => m => m.Language,
+                        _ => null
+                    };
+
+                    if (orderByExpression == null)
+                    {
+                        isValidFilter = false;
+                    }
+                }
+
+                if (!isValidFilter)
+                {
+                    return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(new List<MovieDTO>(),
+                        HttpStatusCode.NoContent));
+                }
+
+                var movies = await _movieService.GetAllMoviesAsync(
+                    filter: filter,
+                    orderByExpression: orderByExpression,
+                    isAscending: isAscending,
+                    pageNumber: pageNumber,
+                    pageSize: pageSize
+                );
+
+                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies.Items));
             }
             catch (Exception ex)
             {
@@ -32,6 +111,7 @@ namespace IMDbClone.WebAPI.Controllers
                 return StatusCode((int)response.StatusCode, response);
             }
         }
+
 
         [HttpGet("{id:int}", Name = "GetMovie")]
         public async Task<IActionResult> GetMovie(int id)

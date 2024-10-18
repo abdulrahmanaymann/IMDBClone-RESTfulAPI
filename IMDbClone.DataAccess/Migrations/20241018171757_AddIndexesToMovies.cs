@@ -5,7 +5,7 @@
 namespace IMDbClone.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityToDB : Migration
+    public partial class AddIndexesToMovies : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,14 +55,14 @@ namespace IMDbClone.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Genre = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Synopsis = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Synopsis = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PosterUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Director = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Director = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Cast = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Language = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     TrailerUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -272,6 +272,41 @@ namespace IMDbClone.DataAccess.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Director",
+                table: "Movies",
+                column: "Director");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Genre",
+                table: "Movies",
+                column: "Genre");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Genre_ReleaseDate",
+                table: "Movies",
+                columns: new[] { "Genre", "ReleaseDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Language",
+                table: "Movies",
+                column: "Language");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_ReleaseDate",
+                table: "Movies",
+                column: "ReleaseDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Synopsis",
+                table: "Movies",
+                column: "Synopsis");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Title",
+                table: "Movies",
+                column: "Title");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ratings_MovieId",

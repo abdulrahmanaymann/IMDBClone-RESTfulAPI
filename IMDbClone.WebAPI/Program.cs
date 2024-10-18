@@ -30,6 +30,10 @@ namespace IMDbClone.WebAPI
             });
 
             // Add services to the container.
+
+            // Register the distributed memory cache with the DI container
+            builder.Services.AddMemoryCache();
+
             // Register the ApplicationDbContext with the DI container
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -48,6 +52,7 @@ namespace IMDbClone.WebAPI
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<IRatingService, RatingService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IWatchlistService, WatchlistService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
 

@@ -1,10 +1,18 @@
 ﻿using System.Linq.Expressions;
+using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.DataAccess.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
+        Task<PaginatedResult<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            string? includeProperties = null,
+            Expression<Func<T, object>>? orderByExpression = null,
+            bool isAscending = true,
+            int pageNumber = 1,
+            int pageSize = 10
+            );
 
         Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
 

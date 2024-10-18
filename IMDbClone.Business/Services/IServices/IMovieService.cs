@@ -1,10 +1,19 @@
-﻿using IMDbClone.Core.DTOs.MovieDTOs;
+﻿using System.Linq.Expressions;
+using IMDbClone.Core.DTOs.MovieDTOs;
+using IMDbClone.Core.Entities;
+using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.Business.Services.IServices
 {
     public interface IMovieService
     {
-        Task<IEnumerable<MovieDTO>> GetAllMoviesAsync();
+        Task<PaginatedResult<MovieDTO>> GetAllMoviesAsync(
+            Expression<Func<Movie, bool>>? filter = null,
+            Expression<Func<Movie, object>>? orderByExpression = null,
+            bool isAscending = true,
+            int pageNumber = 1,
+            int pageSize = 10
+            );
 
         Task<MovieDTO> GetMovieByIdAsync(int id);
 

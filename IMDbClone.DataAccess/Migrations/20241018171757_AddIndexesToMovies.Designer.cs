@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IMDbClone.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241017175600_AddIdentityToDB")]
-    partial class AddIdentityToDB
+    [Migration("20241018171757_AddIndexesToMovies")]
+    partial class AddIndexesToMovies
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,7 +107,7 @@ namespace IMDbClone.DataAccess.Migrations
 
                     b.Property<string>("Director")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
@@ -117,7 +117,7 @@ namespace IMDbClone.DataAccess.Migrations
 
                     b.Property<string>("Language")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PosterUrl")
                         .HasColumnType("nvarchar(max)");
@@ -127,16 +127,37 @@ namespace IMDbClone.DataAccess.Migrations
 
                     b.Property<string>("Synopsis")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("TrailerUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Director")
+                        .HasDatabaseName("IX_Movies_Director");
+
+                    b.HasIndex("Genre")
+                        .HasDatabaseName("IX_Movies_Genre");
+
+                    b.HasIndex("Language")
+                        .HasDatabaseName("IX_Movies_Language");
+
+                    b.HasIndex("ReleaseDate")
+                        .HasDatabaseName("IX_Movies_ReleaseDate");
+
+                    b.HasIndex("Synopsis")
+                        .HasDatabaseName("IX_Movies_Synopsis");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("IX_Movies_Title");
+
+                    b.HasIndex("Genre", "ReleaseDate")
+                        .HasDatabaseName("IX_Movies_Genre_ReleaseDate");
 
                     b.ToTable("Movies");
                 });

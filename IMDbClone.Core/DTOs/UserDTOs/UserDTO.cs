@@ -1,4 +1,5 @@
-﻿using IMDbClone.Core.DTOs.RatingDTOs;
+﻿using IMDbClone.Core.DTOs.MovieDTOs;
+using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
 
 namespace IMDbClone.Core.DTOs.UserDTOs
@@ -14,5 +15,7 @@ namespace IMDbClone.Core.DTOs.UserDTOs
         public List<RatingDTO> Ratings { get; set; } = new List<RatingDTO>();
 
         public List<ReviewDTO> Reviews { get; set; } = new List<ReviewDTO>();
+
+        public List<MovieDTO> FavoriteMovies { get; set; } = new List<MovieDTO>();
     }
 }
