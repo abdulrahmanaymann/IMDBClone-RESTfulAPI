@@ -2,6 +2,7 @@ using System.Text;
 using IMDbClone.Business.Mapper;
 using IMDbClone.Business.Services;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common.Settings;
 using IMDbClone.Core.Entities;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository;
@@ -30,6 +31,7 @@ namespace IMDbClone.WebAPI
             });
 
             // Add services to the container.
+            builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
 
             // Register the distributed memory cache with the DI container
             builder.Services.AddMemoryCache();
@@ -49,12 +51,14 @@ namespace IMDbClone.WebAPI
                 .AddDefaultTokenProviders();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<IRatingService, RatingService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IWatchlistService, WatchlistService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -74,7 +78,7 @@ namespace IMDbClone.WebAPI
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey
                     (
-                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"])
+                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)
                     )
                 };
             });

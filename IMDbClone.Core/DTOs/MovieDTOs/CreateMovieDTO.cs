@@ -7,7 +7,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
     {
         [Required]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 100 characters.")]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required]
         public Genre Genre { get; set; }
@@ -17,14 +17,14 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
 
         [Required]
         [StringLength(500, MinimumLength = 10, ErrorMessage = "Synopsis must be between 10 and 500 characters.")]
-        public string Synopsis { get; set; }
+        public string Synopsis { get; set; } = string.Empty;
 
         [Url]
         public string? PosterUrl { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Director must be between 3 and 100 characters.")]
-        public string Director { get; set; }
+        public string Director { get; set; } = string.Empty;
 
         [Required]
         //[StringLength(500, MinimumLength = 10, ErrorMessage = "Cast must be between 10 and 500 characters.")]
@@ -33,7 +33,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
 
         [Required]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Language must be between 3 and 50 characters.")]
-        public string Language { get; set; }
+        public string Language { get; set; } = string.Empty;
 
         [Required]
         [Range(1, 300, ErrorMessage = "Duration must be between 1 and 300 minutes.")]

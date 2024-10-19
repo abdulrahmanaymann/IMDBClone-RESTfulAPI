@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.DataAccess", "IMD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.Core", "IMDbClone.Core\IMDbClone.Core.csproj", "{A294A331-EC85-4B8B-81F9-E9ED065A6473}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMDbClone.Common", "IMDbClone.Common\IMDbClone.Common.csproj", "{2785BC14-7F62-4310-B1FD-70B6D6F51A23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,9 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IMDbClone.WebAPI.Controllers
@@ -75,12 +77,13 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpPost(Name = "CreateRating")]
+        [Authorize]
         public async Task<IActionResult> CreateRating([FromBody] CreateRatingDTO ratingDTO)
         {
             if (!ModelState.IsValid)
             {
                 var response = APIResponse<CreateRatingDTO>.CreateErrorResponse(new List<string>
-                { "Invalid model object" }, HttpStatusCode.BadRequest);
+                    { "Invalid model object" }, HttpStatusCode.BadRequest);
 
                 return BadRequest(response);
             }
@@ -89,30 +92,39 @@ namespace IMDbClone.WebAPI.Controllers
             if (movie == null)
             {
                 var response = APIResponse<CreateRatingDTO>.CreateErrorResponse(new List<string>
-                { "Movie not found" }, HttpStatusCode.NotFound);
+                            { "Movie not found" }, HttpStatusCode.NotFound);
 
                 return NotFound(response);
             }
 
             try
             {
-                var createdRating = await _ratingService.CreateRatingAsync(ratingDTO);
+                var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    var userResponse = APIResponse<CreateRatingDTO>.CreateErrorResponse(new List<string>
+                            {"User not found" }, HttpStatusCode.NotFound);
+
+                    return NotFound(userResponse);
+                }
+
+                var createdRating = await _ratingService.CreateRatingAsync(ratingDTO, userId);
 
                 var response = APIResponse<CreateRatingDTO>.CreateSuccessResponse(ratingDTO);
 
                 return CreatedAtRoute(nameof(GetRating), new { id = createdRating.Id }, response);
             }
-
             catch (Exception ex)
             {
                 var response = APIResponse<CreateRatingDTO>.CreateErrorResponse(new List<string>
-                { ex.Message });
+        { ex.Message });
 
                 return StatusCode((int)response.StatusCode, response);
             }
         }
 
         [HttpPut("{id:int}", Name = "UpdateRating")]
+        [Authorize]
         public async Task<IActionResult> UpdateRating([FromRoute] int id, [FromBody] UpdateRatingDTO ratingDTO)
         {
             if (!ModelState.IsValid)
@@ -132,9 +144,18 @@ namespace IMDbClone.WebAPI.Controllers
                 return NotFound(response);
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                var response = APIResponse<UpdateRatingDTO>.CreateErrorResponse(new List<string>
+                { "User not found" }, HttpStatusCode.NotFound);
+
+                return NotFound(response);
+            }
+
             try
             {
-                await _ratingService.UpdateRatingAsync(id, ratingDTO);
+                await _ratingService.UpdateRatingAsync(id, ratingDTO, userId);
                 var successResponse = APIResponse<UpdateRatingDTO>.CreateSuccessResponse(ratingDTO);
 
                 return Ok(successResponse);
@@ -150,6 +171,7 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteRating")]
+        [Authorize]
         public async Task<IActionResult> DeleteRating(int id)
         {
             var rating = await _ratingService.GetRatingByIdAsync(id);
@@ -161,9 +183,18 @@ namespace IMDbClone.WebAPI.Controllers
                 return NotFound(response);
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                var response = APIResponse<RatingDTO>.CreateErrorResponse(new List<string>
+                { "User not found" }, HttpStatusCode.NotFound);
+
+                return NotFound(response);
+            }
+
             try
             {
-                await _ratingService.DeleteRatingAsync(id);
+                await _ratingService.DeleteRatingAsync(id, userId);
                 return NoContent();
             }
 

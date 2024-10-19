@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.ReviewDTOs;
 using IMDbClone.Core.Entities;
+using IMDbClone.Core.Exceptions;
 using IMDbClone.DataAccess.Repository.IRepository;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Http;
 
 namespace IMDbClone.Business.Services
 {
@@ -11,123 +13,122 @@ namespace IMDbClone.Business.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheService _cacheService;
 
-        public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, IMemoryCache cache)
+        public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _cache = cache;
+            _cacheService = cacheService;
         }
 
         public async Task<IEnumerable<ReviewDTO>> GetAllReviewsAsync()
         {
-            var cacheKey = "allReviews";
-            if (!_cache.TryGetValue(cacheKey, out IEnumerable<ReviewDTO> cachedReviews))
+            var cacheKey = CacheKeys.AllReviews;
+            try
             {
-                try
+                var cachedReviews = await _cacheService.GetOrCreateAsync(cacheKey, async () =>
                 {
-                    var reviews = await _unitOfWork.Review.GetAllAsync(includeProperties: "User,Movie");
-                    cachedReviews = _mapper.Map<IEnumerable<ReviewDTO>>(reviews);
+                    var paginatedResult = await _unitOfWork.Review.GetAllAsync(includeProperties: "User,Movie");
+                    return _mapper.Map<IEnumerable<ReviewDTO>>(paginatedResult.Items);
+                });
 
-                    // Set cache options
-                    var cacheOptions = new MemoryCacheEntryOptions()
-                        .SetSlidingExpiration(TimeSpan.FromMinutes(30))
-                        .SetAbsoluteExpiration(TimeSpan.FromHours(1));
-
-                    _cache.Set(cacheKey, cachedReviews, cacheOptions);
-                }
-                catch (Exception ex)
-                {
-                    throw new ApplicationException("An error occurred while retrieving reviews. " +
-                        "Please try again later.", ex);
-                }
+                return cachedReviews;
             }
-
-            return cachedReviews;
-
+            catch (Exception ex)
+            {
+                throw new ApiException("An error occurred while retrieving reviews.",
+                    HttpStatusCodes.InternalServerError, ex);
+            }
         }
 
         public async Task<ReviewDTO> GetReviewByIdAsync(int id)
         {
-            var cacheKey = $"review_{id}";
-            if (!_cache.TryGetValue(cacheKey, out ReviewDTO cachedReview))
+            var cacheKey = CacheKeys.ReviewByMovieId(id);
+            try
             {
-                var review = await _unitOfWork.Review.GetAsync(u => u.Id == id, includeProperties: "User,Movie");
-                if (review == null)
+                var cachedReview = await _cacheService.GetOrCreateAsync(cacheKey, async () =>
                 {
-                    throw new KeyNotFoundException($"Review with ID {id} not found.");
-                }
+                    var review = await _unitOfWork.Review.GetAsync(u => u.Id == id, includeProperties: "User,Movie");
+                    if (review == null)
+                    {
+                        throw new KeyNotFoundException($"Review with ID {id} not found.");
+                    }
+                    return _mapper.Map<ReviewDTO>(review);
+                });
 
-                cachedReview = _mapper.Map<ReviewDTO>(review);
-
-                // Set cache options
-                var cacheOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(30))
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(1));
-
-                _cache.Set(cacheKey, cachedReview, cacheOptions);
+                return cachedReview;
             }
-
-            return cachedReview;
+            catch (Exception ex)
+            {
+                throw new ApiException("An error occurred while retrieving the review.",
+                        HttpStatusCodes.InternalServerError, ex);
+            }
         }
 
-        public async Task<ReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO)
+        public async Task<ReviewDTO> CreateReviewAsync(CreateReviewDTO reviewDTO, string userId)
         {
-            var existingReview = await _unitOfWork.Review.GetAsync(u => u.UserId == reviewDTO.UserId && u.MovieId == reviewDTO.MovieId);
+            if (reviewDTO == null)
+            {
+                throw new ApiException("Review data cannot be null.", StatusCodes.Status400BadRequest);
+            }
+
+            var existingReview = await _unitOfWork.Review.GetAsync(r => r.UserId == userId &&
+                                                                    r.MovieId == reviewDTO.MovieId);
             if (existingReview != null)
             {
-                throw new InvalidOperationException($"Review for the movie with ID {reviewDTO.MovieId} " +
-                    $"by user with ID {reviewDTO.UserId} already exists.");
+                throw new ApiException($"Review for the movie with ID {reviewDTO.MovieId} " +
+                    $"by user with ID {userId} already exists.", StatusCodes.Status409Conflict);
             }
 
             var review = _mapper.Map<Review>(reviewDTO);
-            await _unitOfWork.Review.AddAsync(review);
+            review.UserId = userId;
 
-            _cache.Remove("allReviews");
+            await _unitOfWork.Review.AddAsync(review);
+            _cacheService.Remove(CacheKeys.AllReviews);
 
             return _mapper.Map<ReviewDTO>(review);
         }
 
-        public async Task<UpdateReviewDTO> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO)
+        public async Task<UpdateReviewDTO> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO, string userId)
         {
             if (reviewDTO == null)
             {
-                throw new ArgumentNullException(nameof(reviewDTO), "Review data is missing.");
+                throw new ApiException("Review data is missing.", StatusCodes.Status400BadRequest);
             }
 
             if (id <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(id), "Review ID is invalid.");
+                throw new ApiException("Review ID is invalid.", StatusCodes.Status400BadRequest);
             }
 
-            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id);
+            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id && u.UserId == userId);
             if (review == null)
             {
-                throw new KeyNotFoundException($"Review with ID {id} not found.");
+                throw new ApiException($"Review with ID {id} not found.", StatusCodes.Status404NotFound);
             }
 
             _mapper.Map(reviewDTO, review);
             await _unitOfWork.Review.UpdateAsync(review);
 
-            _cache.Remove($"review_{id}");
-            _cache.Remove("allReviews");
+            _cacheService.Remove(CacheKeys.ReviewByMovieId(id));
+            _cacheService.Remove(CacheKeys.AllReviews);
 
             return _mapper.Map<UpdateReviewDTO>(review);
         }
 
-        public async Task DeleteReviewAsync(int id)
+        public async Task DeleteReviewAsync(int id, string userId)
         {
-            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id);
+            var review = await _unitOfWork.Review.GetAsync(u => u.Id == id && u.UserId == userId);
             if (review == null)
             {
-                throw new KeyNotFoundException($"Review with ID {id} not found.");
+                throw new ApiException($"Review with ID {id} not found.", StatusCodes.Status404NotFound);
             }
 
-            _cache.Remove($"review_{id}");
-            _cache.Remove("allReviews");
-
             await _unitOfWork.Review.RemoveAsync(review);
+            _cacheService.Remove(CacheKeys.ReviewByMovieId(id));
+            _cacheService.Remove(CacheKeys.AllReviews);
         }
+
     }
 }

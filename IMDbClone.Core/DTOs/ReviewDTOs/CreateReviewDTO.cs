@@ -9,9 +9,6 @@ namespace IMDbClone.Core.DTOs.ReviewDTOs
         public string Content { get; set; } = string.Empty;
 
         [Required]
-        public string UserId { get; set; }
-
-        [Required]
         public int MovieId { get; set; }
     }
 }

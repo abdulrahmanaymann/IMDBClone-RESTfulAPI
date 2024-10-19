@@ -8,10 +8,10 @@ namespace IMDbClone.Business.Services.IServices
 
         Task<RatingDTO> GetRatingByIdAsync(int id);
 
-        Task<RatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO);
+        Task<RatingDTO> CreateRatingAsync(CreateRatingDTO ratingDTO, string userId);
 
-        Task<UpdateRatingDTO> UpdateRatingAsync(int id, UpdateRatingDTO ratingDTO);
+        Task<UpdateRatingDTO> UpdateRatingAsync(int id, UpdateRatingDTO ratingDTO, string userId);
 
-        Task DeleteRatingAsync(int id);
+        Task DeleteRatingAsync(int id, string userId);
     }
 }

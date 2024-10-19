@@ -1,11 +1,12 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.Entities;
+using IMDbClone.Core.Exceptions;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace IMDbClone.Business.Services
 {
@@ -13,13 +14,13 @@ namespace IMDbClone.Business.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IMemoryCache _cache;
+        private readonly ICacheService _cacheService;
 
-        public MovieService(IUnitOfWork unitOfWork, IMapper mapper, IMemoryCache cache)
+        public MovieService(IUnitOfWork unitOfWork, IMapper mapper, ICacheService cacheService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _cache = cache;
+            _cacheService = cacheService;
         }
 
         public async Task<PaginatedResult<MovieDTO>> GetAllMoviesAsync(
@@ -29,8 +30,18 @@ namespace IMDbClone.Business.Services
                 int pageNumber = 1,
                 int pageSize = 10)
         {
-            var cacheKey = "AllMovies";
-            if (!_cache.TryGetValue(cacheKey, out PaginatedResult<MovieDTO> cachedResult))
+            if (pageNumber < 1)
+            {
+                throw new ApiException("Page number must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
+
+            if (pageSize < 1)
+            {
+                throw new ApiException("Page size must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
+
+            var cacheKey = CacheKeys.AllMovies;
+            return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
                 try
                 {
@@ -43,47 +54,35 @@ namespace IMDbClone.Business.Services
                         pageSize: pageSize
                     );
 
-                    cachedResult = new PaginatedResult<MovieDTO>
+                    return new PaginatedResult<MovieDTO>
                     {
                         Items = _mapper.Map<IEnumerable<MovieDTO>>(movies.Items),
                         TotalCount = movies.TotalCount,
                         PageNumber = movies.PageNumber,
                         PageSize = movies.PageSize
                     };
-
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(10)) // Refresh if inactive for 10 minutes
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(1)); // Refresh every hour
-
-                    _cache.Set(cacheKey, cachedResult, cacheEntryOptions); // Cache the result
                 }
                 catch (Exception ex)
                 {
-                    throw new ApplicationException("An error occurred while retrieving movies. " +
-                        "Please try again later.", ex);
+                    throw new ApiException("An error occurred while retrieving movies.",
+                        HttpStatusCodes.InternalServerError, ex);
                 }
-            }
-
-            return cachedResult;
+            });
         }
 
         public async Task<MovieDTO> GetMovieByIdAsync(int id)
         {
-            var cacheKey = $"Movie_{id}";
-            if (!_cache.TryGetValue(cacheKey, out MovieDTO cachedMovie))
+            var cacheKey = CacheKeys.MovieById(id);
+            return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
                 var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id, includeProperties: "Reviews,Ratings");
                 if (movie == null)
                 {
-                    throw new KeyNotFoundException($"Movie with ID {id} not found.");
+                    throw new ApiException($"Movie with ID {id} not found.", HttpStatusCodes.NotFound);
                 }
 
-                cachedMovie = _mapper.Map<MovieDTO>(movie);
-                // Store the movie in cache
-                _cache.Set(cacheKey, cachedMovie);
-            }
-
-            return cachedMovie;
+                return _mapper.Map<MovieDTO>(movie);
+            });
         }
 
         public async Task<MovieDTO> CreateMovieAsync(CreateMovieDTO movieDTO)
@@ -91,14 +90,14 @@ namespace IMDbClone.Business.Services
             var existingMovie = await _unitOfWork.Movie.GetAsync(u => u.Title == movieDTO.Title);
             if (existingMovie != null)
             {
-                throw new InvalidOperationException($"Movie with title {movieDTO.Title} already exists.");
+                throw new ApiException($"Movie with title {movieDTO.Title} already exists.",
+                    HttpStatusCodes.Conflict);
             }
 
             var movie = _mapper.Map<Movie>(movieDTO);
             await _unitOfWork.Movie.AddAsync(movie);
 
-            // Clear cache after creating a new movie
-            _cache.Remove("AllMovies"); // Clear AllMovies cache to ensure the new movie is included
+            _cacheService.Remove(CacheKeys.AllMovies);
 
             return _mapper.Map<MovieDTO>(movie);
         }
@@ -106,19 +105,16 @@ namespace IMDbClone.Business.Services
         public async Task<UpdateMovieDTO> UpdateMovieAsync(int id, UpdateMovieDTO movieDTO)
         {
             ArgumentNullException.ThrowIfNull(movieDTO);
-
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
 
             var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id) ??
-                throw new KeyNotFoundException($"Movie with ID {id} not found.");
+                throw new ApiException($"Movie with ID {id} not found.", HttpStatusCodes.NotFound);
+
             _mapper.Map(movieDTO, movie);
             await _unitOfWork.Movie.UpdateAsync(movie);
 
-            // Clear the specific movie cache
-            _cache.Remove($"Movie_{id}"); // Remove cache for the updated movie
-
-            // Also clear the AllMovies cache to ensure consistency
-            _cache.Remove("AllMovies");
+            _cacheService.Remove(CacheKeys.MovieById(id));
+            _cacheService.Remove(CacheKeys.AllMovies);
 
             return _mapper.Map<UpdateMovieDTO>(movie);
         }
@@ -126,14 +122,12 @@ namespace IMDbClone.Business.Services
         public async Task DeleteMovieAsync(int id)
         {
             var movie = await _unitOfWork.Movie.GetAsync(u => u.Id == id) ??
-                throw new KeyNotFoundException($"Movie with ID {id} not found.");
+                throw new ApiException($"Movie with ID {id} not found.", HttpStatusCodes.NotFound);
+
             await _unitOfWork.Movie.RemoveAsync(movie);
 
-            // Clear cache for the deleted movie
-            _cache.Remove($"Movie_{id}"); // Remove cache for the deleted movie
-
-            // Also clear the AllMovies cache to ensure consistency
-            _cache.Remove("AllMovies");
+            _cacheService.Remove(CacheKeys.MovieById(id));
+            _cacheService.Remove(CacheKeys.AllMovies);
         }
     }
 }

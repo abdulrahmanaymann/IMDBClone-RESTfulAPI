@@ -17,7 +17,7 @@ namespace IMDbClone.Business.Services
         public TokenService(IConfiguration config)
         {
             _config = config;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]));
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]!));
         }
 
         public string CreateToken(ApplicationUser user)
@@ -25,6 +25,7 @@ namespace IMDbClone.Business.Services
             // step 1: create claims
             List<Claim> claims = new()
             {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new(JwtRegisteredClaimNames.Email, user.Email),
                 new(JwtRegisteredClaimNames.UniqueName, user.UserName),
                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

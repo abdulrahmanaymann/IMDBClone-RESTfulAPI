@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IMDbClone.Business\IMDbClone.Business.csproj" />
+    <ProjectReference Include="..\IMDbClone.Common\IMDbClone.Common.csproj" />
     <ProjectReference Include="..\IMDbClone.DataAccess\IMDbClone.DataAccess.csproj" />
   </ItemGroup>
 

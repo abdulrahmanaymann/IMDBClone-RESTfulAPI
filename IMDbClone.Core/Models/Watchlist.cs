@@ -9,11 +9,11 @@ namespace IMDbClone.Core.Entities
         public string UserId { get; set; } = string.Empty;
 
         [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = default!;
 
         public int MovieId { get; set; }
 
         [ForeignKey("MovieId")]
-        public Movie Movie { get; set; }
+        public Movie Movie { get; set; } = default!;
     }
 }

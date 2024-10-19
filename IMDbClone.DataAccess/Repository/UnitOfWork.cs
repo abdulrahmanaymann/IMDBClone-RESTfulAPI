@@ -13,6 +13,8 @@ namespace IMDbClone.DataAccess.Repository
 
         public IUserRepository User { get; private set; }
 
+        public IWatchlistRepository Watchlist { get; private set; }
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
@@ -20,6 +22,7 @@ namespace IMDbClone.DataAccess.Repository
             Rating = new RatingRepository(_context);
             Review = new ReviewRepository(_context);
             User = new UserRepository(_context);
+            Watchlist = new WatchlistRepository(_context);
         }
     }
 }

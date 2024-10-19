@@ -9,5 +9,7 @@
         IReviewRepository Review { get; }
 
         IUserRepository User { get; }
+
+        IWatchlistRepository Watchlist { get; }
     }
 }

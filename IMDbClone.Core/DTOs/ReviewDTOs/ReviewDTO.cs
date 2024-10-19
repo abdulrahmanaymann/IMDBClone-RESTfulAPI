@@ -14,7 +14,7 @@ namespace IMDbClone.Core.DTOs.ReviewDTOs
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         [Required]
         public int MovieId { get; set; }

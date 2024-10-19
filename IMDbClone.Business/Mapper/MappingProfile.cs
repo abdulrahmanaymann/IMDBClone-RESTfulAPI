@@ -6,6 +6,7 @@ using IMDbClone.Core.DTOs.ReviewDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.DTOs.WatchlistDTOs;
 using IMDbClone.Core.Entities;
+using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.Business.Mapper
 {
@@ -40,8 +41,17 @@ namespace IMDbClone.Business.Mapper
             CreateMap<ApplicationUser, LoginResponseDTO>();
             CreateMap<RegisterationRequestDTO, ApplicationUser>();
 
-            CreateMap<Watchlist, WatchlistDTO>().ReverseMap();
+            CreateMap<Watchlist, WatchlistDTO>()
+           .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.Movie.Title))
+           .ReverseMap();
             CreateMap<Watchlist, CreateWatchlistDTO>().ReverseMap();
+
+            CreateMap<PaginatedResult<Rating>, PaginatedResult<RatingDTO>>()
+                    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+
+            CreateMap<PaginatedResult<Review>, PaginatedResult<ReviewDTO>>()
+                    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+
         }
     }
 }

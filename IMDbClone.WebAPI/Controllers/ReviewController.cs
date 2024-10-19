@@ -1,7 +1,10 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.ReviewDTOs;
+using IMDbClone.Core.DTOs.WatchlistDTOs;
 using IMDbClone.Core.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IMDbClone.WebAPI.Controllers
@@ -75,12 +78,13 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpPost(Name = "CreateReview")]
+        [Authorize]
         public async Task<IActionResult> CreateReview([FromBody] CreateReviewDTO reviewDTO)
         {
             if (!ModelState.IsValid)
             {
                 var response = APIResponse<ReviewDTO>.CreateErrorResponse(new List<string>
-                { "Invalid model" }, HttpStatusCode.BadRequest);
+                        { "Invalid model" }, HttpStatusCode.BadRequest);
 
                 return BadRequest(response);
             }
@@ -89,31 +93,40 @@ namespace IMDbClone.WebAPI.Controllers
             if (movie == null)
             {
                 var response = APIResponse<ReviewDTO>.CreateErrorResponse(new List<string>
-                { "Movie not found" }, HttpStatusCode.NotFound);
+                        { "Movie not found" }, HttpStatusCode.NotFound);
+
+                return NotFound(response);
+            }
+
+            var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                var response = APIResponse<WatchlistDTO>.CreateErrorResponse(new List<string>
+                        { "User not found" }, HttpStatusCode.NotFound);
 
                 return NotFound(response);
             }
 
             try
             {
-                var createdReview = await _reviewService.CreateReviewAsync(reviewDTO);
+                var createdReview = await _reviewService.CreateReviewAsync(reviewDTO, userId);
 
                 var successResponse = APIResponse<ReviewDTO>.CreateSuccessResponse(createdReview);
 
                 return CreatedAtRoute("GetReview", new { id = createdReview.Id }, successResponse);
             }
-
             catch (Exception ex)
             {
                 var response = APIResponse<ReviewDTO>.CreateErrorResponse(new List<string>
-                { ex.Message });
+                     { ex.Message });
 
                 return StatusCode((int)response.StatusCode, response);
             }
-
         }
 
+
         [HttpPut("{id:int}", Name = "UpdateReview")]
+        [Authorize]
         public async Task<IActionResult> UpdateReview([FromRoute] int id, [FromBody] UpdateReviewDTO reviewDTO)
         {
             if (!ModelState.IsValid)
@@ -133,9 +146,18 @@ namespace IMDbClone.WebAPI.Controllers
                 return NotFound(response);
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                var response = APIResponse<ReviewDTO>.CreateErrorResponse(new List<string>
+                { "User not found" }, HttpStatusCode.NotFound);
+
+                return NotFound(response);
+            }
+
             try
             {
-                await _reviewService.UpdateReviewAsync(id, reviewDTO);
+                await _reviewService.UpdateReviewAsync(id, reviewDTO, userId);
 
                 var response = APIResponse<UpdateReviewDTO>.CreateSuccessResponse(reviewDTO);
 
@@ -152,6 +174,7 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteReview")]
+        [Authorize]
         public async Task<IActionResult> DeleteReview([FromRoute] int id)
         {
             var review = await _reviewService.GetReviewByIdAsync(id);
@@ -163,9 +186,18 @@ namespace IMDbClone.WebAPI.Controllers
                 return NotFound(response);
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                var response = APIResponse<ReviewDTO>.CreateErrorResponse(new List<string>
+                { "User not found" }, HttpStatusCode.NotFound);
+
+                return NotFound(response);
+            }
+
             try
             {
-                await _reviewService.DeleteReviewAsync(id);
+                await _reviewService.DeleteReviewAsync(id, userId);
                 return NoContent();
             }
             catch (Exception ex)
