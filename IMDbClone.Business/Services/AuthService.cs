@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using AutoMapper;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common;
 using IMDbClone.Core.DTOs.AuthDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.Entities;
@@ -86,19 +87,12 @@ namespace IMDbClone.Business.Services
                 var result = await _userManager.CreateAsync(user, registerDTO.Password);
                 if (!result.Succeeded)
                 {
-                    // Collecting error messages from the result
                     var errors = result.Errors.Select(e => e.Description).ToList();
                     return APIResponse<UserDTO>.CreateErrorResponse(errors, HttpStatusCode.BadRequest);
                 }
 
                 // Step 3: add user to the default role
-                var roleExists = await _roleManager.RoleExistsAsync("User");
-                if (!roleExists)
-                {
-                    await _roleManager.CreateAsync(new IdentityRole("User"));
-                }
-
-                await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, Roles.User);
 
                 var userDTO = _mapper.Map<UserDTO>(user);
                 return APIResponse<UserDTO>.CreateSuccessResponse(userDTO);

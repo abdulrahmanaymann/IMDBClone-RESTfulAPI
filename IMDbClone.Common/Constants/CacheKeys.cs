@@ -17,5 +17,9 @@
         public const string AllWatchlists = "AllWatchlists";
 
         public static string WatchlistByUserId(string userId) => $"Watchlist_User_{userId}";
+
+        public static string TopRatedMovies(int count) => $"top_rated_movies_{count}";
+
+        public static string MostPopularMovies(int count) => $"most_popular_movies_{count}";
     }
 }

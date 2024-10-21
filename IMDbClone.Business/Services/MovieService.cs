@@ -48,7 +48,8 @@ namespace IMDbClone.Business.Services
                     var movies = await _unitOfWork.Movie.GetAllAsync(
                         filter: filter,
                         includeProperties: "Reviews,Ratings",
-                        orderByExpression: orderByExpression,
+                        orderByExpression: orderByExpression ??
+                                (isAscending ? m => m.Title : (m => m.Title)),
                         isAscending: isAscending,
                         pageNumber: pageNumber,
                         pageSize: pageSize
@@ -128,6 +129,28 @@ namespace IMDbClone.Business.Services
 
             _cacheService.Remove(CacheKeys.MovieById(id));
             _cacheService.Remove(CacheKeys.AllMovies);
+        }
+
+        public async Task<IEnumerable<MovieDTO>> GetTopRatedMoviesAsync(int count)
+        {
+            var cacheKey = CacheKeys.TopRatedMovies(count);
+
+            return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
+            {
+                var topRatedMovies = await _unitOfWork.Movie.GetTopRatedMoviesAsync(count);
+                return _mapper.Map<IEnumerable<MovieDTO>>(topRatedMovies);
+            });
+        }
+
+        public async Task<IEnumerable<MovieDTO>> GetMostPopularMoviesAsync(int count)
+        {
+            var cacheKey = CacheKeys.MostPopularMovies(count);
+
+            return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
+            {
+                var popularMovies = await _unitOfWork.Movie.GetMostPopularMoviesAsync(count);
+                return _mapper.Map<IEnumerable<MovieDTO>>(popularMovies);
+            });
         }
     }
 }

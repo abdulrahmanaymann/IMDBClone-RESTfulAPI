@@ -5,6 +5,7 @@ using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Settings;
 using IMDbClone.Core.Entities;
 using IMDbClone.DataAccess.Data;
+using IMDbClone.DataAccess.DbInitializer;
 using IMDbClone.DataAccess.Repository;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +19,7 @@ namespace IMDbClone.WebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,7 @@ namespace IMDbClone.WebAPI
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
+            builder.Services.AddScoped<IDBInitializer, DBInitializer>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -83,34 +85,48 @@ namespace IMDbClone.WebAPI
                 };
             });
 
-
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(option =>
+            builder.Services.AddSwaggerGen(options =>
             {
-                option.SwaggerDoc("v1", new OpenApiInfo
-                { Title = "IMDB_API", Version = "v1" });
-                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
+                    Description = "JWT Authorization header using the Bearer scheme.\r\n\r\n" +
+                                  "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
+                                  "Example: 'Bearer 123'",
                     Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
                         {
                             Reference = new OpenApiReference
                             {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "Bearer",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
                         },
-                        new string[]{}
+                        new List<string>()
+                    }
+                });
+
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1.0",
+                    Title = "IMDB API",
+                    Description = "API to manage IMDb Clone features",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Abdulrahman Ayman",
+                        Url = new Uri("https://github.com/abdulrahmanaymann/IMDbClone")
                     }
                 });
             });
@@ -131,6 +147,12 @@ namespace IMDbClone.WebAPI
             app.UseAuthorization();
 
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
+                await dbInitializer.Initialize();
+            }
 
             app.Run();
         }

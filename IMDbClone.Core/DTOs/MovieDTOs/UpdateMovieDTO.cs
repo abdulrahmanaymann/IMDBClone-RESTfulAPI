@@ -12,7 +12,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
 
         public DateTime? ReleaseDate { get; set; }
 
-        [StringLength(500, MinimumLength = 10, ErrorMessage = "Synopsis must be between 10 and 500 characters.")]
+        [StringLength(50000, MinimumLength = 10, ErrorMessage = "Synopsis must be between 10 and 500 characters.")]
         public string? Synopsis { get; set; }
 
         [Url]

@@ -22,5 +22,9 @@ namespace IMDbClone.Business.Services.IServices
         Task<UpdateMovieDTO> UpdateMovieAsync(int id, UpdateMovieDTO movieDTO);
 
         Task DeleteMovieAsync(int id);
+
+        Task<IEnumerable<MovieDTO>> GetTopRatedMoviesAsync(int count);
+
+        Task<IEnumerable<MovieDTO>> GetMostPopularMoviesAsync(int count);
     }
 }

@@ -13,6 +13,7 @@ namespace IMDbClone.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WatchlistController : ControllerBase
     {
         public readonly IWatchlistService _watchlistService;
@@ -23,7 +24,6 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> GetAll(
             [FromQuery] string? search,
             [FromQuery] int pageNumber = 1,
@@ -67,7 +67,6 @@ namespace IMDbClone.WebAPI.Controllers
 
 
         [HttpGet("{id:int}", Name = "GetWatchlist")]
-        [Authorize]
         public async Task<IActionResult> GetWatchList(int id)
         {
             if (id <= 0)
@@ -113,7 +112,6 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpPost(Name = "CreateWatchlist")]
-        [Authorize]
         public async Task<IActionResult> CreateWatchList([FromBody] CreateWatchlistDTO watchlistDTO)
         {
             if (!ModelState.IsValid)
@@ -153,7 +151,6 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteWatchlist")]
-        [Authorize]
         public async Task<IActionResult> DeleteWatchlist(int id)
         {
             if (id <= 0)

@@ -10,8 +10,4 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\IMDbClone.DataAccess\IMDbClone.DataAccess.csproj" />
-  </ItemGroup>
-
 </Project>

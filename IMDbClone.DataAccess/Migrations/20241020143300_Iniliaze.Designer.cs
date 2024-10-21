@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IMDbClone.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241018171757_AddIndexesToMovies")]
-    partial class AddIndexesToMovies
+    [Migration("20241020143300_Iniliaze")]
+    partial class Iniliaze
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,6 +49,10 @@ namespace IMDbClone.DataAccess.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -223,6 +227,30 @@ namespace IMDbClone.DataAccess.Migrations
                     b.ToTable("Reviews");
                 });
 
+            modelBuilder.Entity("IMDbClone.Core.Entities.Watchlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Watchlists");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -394,6 +422,25 @@ namespace IMDbClone.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("IMDbClone.Core.Entities.Watchlist", b =>
+                {
+                    b.HasOne("IMDbClone.Core.Entities.Movie", "Movie")
+                        .WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IMDbClone.Core.Entities.ApplicationUser", "User")
+                        .WithMany("Watchlists")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -450,6 +497,8 @@ namespace IMDbClone.DataAccess.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("Watchlists");
                 });
 
             modelBuilder.Entity("IMDbClone.Core.Entities.Movie", b =>

@@ -1,11 +1,13 @@
 ﻿using System.Linq.Expressions;
 using System.Net;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common;
 using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.Entities;
 using IMDbClone.Core.Enums;
 using IMDbClone.Core.Responses;
 using LinqKit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IMDbClone.WebAPI.Controllers
@@ -142,6 +144,7 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpPost(Name = "CreateMovie")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> CreateMovie([FromBody] CreateMovieDTO movieDTO)
         {
             if (!ModelState.IsValid)
@@ -165,6 +168,7 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpPut("{id:int}", Name = "UpdateMovie")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> UpdateMovie([FromRoute] int id, [FromBody] UpdateMovieDTO movieDTO)
         {
             if (!ModelState.IsValid)
@@ -194,6 +198,7 @@ namespace IMDbClone.WebAPI.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteMovie")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteMovie(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);
@@ -211,6 +216,38 @@ namespace IMDbClone.WebAPI.Controllers
             catch (Exception ex)
             {
                 var response = APIResponse<MovieDTO>.CreateErrorResponse(new List<string> { ex.Message }, HttpStatusCode.InternalServerError);
+                return StatusCode((int)response.StatusCode, response);
+            }
+        }
+
+        [HttpGet("top-rated/{count}", Name = "GetTopRatedMovies")]
+        public async Task<IActionResult> GetTopRatedMovies([FromQuery] int count = 10)
+        {
+            try
+            {
+                var movies = await _movieService.GetTopRatedMoviesAsync(count);
+                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies));
+            }
+            catch (Exception ex)
+            {
+                var response = APIResponse<IEnumerable<MovieDTO>>.CreateErrorResponse(new List<string>
+                { ex.Message });
+                return StatusCode((int)response.StatusCode, response);
+            }
+        }
+
+        [HttpGet("most-popular/{count}", Name = "GetMostPopularMovies")]
+        public async Task<IActionResult> GetMostPopularMovies([FromQuery] int count = 10)
+        {
+            try
+            {
+                var movies = await _movieService.GetMostPopularMoviesAsync(count);
+                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies));
+            }
+            catch (Exception ex)
+            {
+                var response = APIResponse<IEnumerable<MovieDTO>>.CreateErrorResponse(new List<string>
+                { ex.Message });
                 return StatusCode((int)response.StatusCode, response);
             }
         }

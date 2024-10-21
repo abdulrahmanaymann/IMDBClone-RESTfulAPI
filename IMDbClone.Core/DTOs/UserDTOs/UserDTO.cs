@@ -1,6 +1,7 @@
 ﻿using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
+using IMDbClone.Core.Validation;
 
 namespace IMDbClone.Core.DTOs.UserDTOs
 {
@@ -11,6 +12,9 @@ namespace IMDbClone.Core.DTOs.UserDTOs
         public string UserName { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
+
+        [FullName]
+        public string Name { get; set; } = string.Empty;
 
         public List<RatingDTO> Ratings { get; set; } = new List<RatingDTO>();
 
