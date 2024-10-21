@@ -25,7 +25,14 @@ namespace IMDbClone.Business.Services
 
         private readonly IMapper _mapper;
 
-        public AuthService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, ITokenService tokenService, IMapper mapper)
+
+        public AuthService(
+            IUnitOfWork unitOfWork,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
+            ITokenService tokenService,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;

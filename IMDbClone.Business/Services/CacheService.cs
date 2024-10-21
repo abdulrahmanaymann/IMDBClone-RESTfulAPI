@@ -19,7 +19,7 @@ namespace IMDbClone.Business.Services
         public async Task<T> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> createItemAsync,
                 TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
         {
-            if (createItemAsync == null) throw new ArgumentNullException(nameof(createItemAsync));
+            ArgumentNullException.ThrowIfNull(createItemAsync);
 
             if (!_cache.TryGetValue(cacheKey, out T cachedItem))
             {
@@ -35,7 +35,6 @@ namespace IMDbClone.Business.Services
             }
             return cachedItem;
         }
-
 
         public void Remove(string cacheKey)
         {

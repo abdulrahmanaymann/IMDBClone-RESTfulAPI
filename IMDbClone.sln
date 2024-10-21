@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.Core", "IMDbClone.Core\IMDbClone.Core.csproj", "{A294A331-EC85-4B8B-81F9-E9ED065A6473}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.Common", "IMDbClone.Common\IMDbClone.Common.csproj", "{2785BC14-7F62-4310-B1FD-70B6D6F51A23}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.DataAccess", "IMDbClone.DataAccess\IMDbClone.DataAccess.csproj", "{AD28F766-6635-4CDD-BC76-4AD7881372BD}"
@@ -13,16 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.Business", "IMDbC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.WebAPI", "IMDbClone.WebAPI\IMDbClone.WebAPI.csproj", "{592837DE-E215-40BC-8E92-66819FE48AA2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMDbClone.Core", "IMDbClone.Core\IMDbClone.Core.csproj", "{5CD9BCA8-8A3B-4629-AE4B-F951ABD3F53B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A294A331-EC85-4B8B-81F9-E9ED065A6473}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2785BC14-7F62-4310-B1FD-70B6D6F51A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{592837DE-E215-40BC-8E92-66819FE48AA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{592837DE-E215-40BC-8E92-66819FE48AA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{592837DE-E215-40BC-8E92-66819FE48AA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CD9BCA8-8A3B-4629-AE4B-F951ABD3F53B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD9BCA8-8A3B-4629-AE4B-F951ABD3F53B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CD9BCA8-8A3B-4629-AE4B-F951ABD3F53B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CD9BCA8-8A3B-4629-AE4B-F951ABD3F53B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

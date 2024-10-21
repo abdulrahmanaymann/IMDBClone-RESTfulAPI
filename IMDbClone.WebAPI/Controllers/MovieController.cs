@@ -23,6 +23,22 @@ namespace IMDbClone.WebAPI.Controllers
             _movieService = movieService;
         }
 
+        /// <summary>
+        /// Retrieves all movies based on search and filter criteria such as genre, director, language, and release date.
+        /// </summary>
+        /// <param name="search">Search keyword for title or synopsis.</param>
+        /// <param name="genre">Genre filter (e.g., Action, Drama).</param>
+        /// <param name="director">Filter by director's name.</param>
+        /// <param name="language">Filter by language.</param>
+        /// <param name="releaseDate">Filter by release date.</param>
+        /// <param name="sortBy">Field to sort by (title, releaseDate, etc.).</param>
+        /// <param name="isAscending">Whether sorting is ascending or descending.</param>
+        /// <param name="pageNumber">Page number for pagination.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>List of filtered movies.</returns>
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.InternalServerError)]
         [HttpGet]
         public async Task<IActionResult> GetAll(
             [FromQuery] string? search,
@@ -114,7 +130,15 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Retrieves a movie by its ID.
+        /// </summary>
+        /// <param name="id">The movie's ID.</param>
+        /// <returns>Movie details.</returns>
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.InternalServerError)]
         [HttpGet("{id:int}", Name = "GetMovie")]
         public async Task<IActionResult> GetMovie(int id)
         {
@@ -143,6 +167,14 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new movie.
+        /// </summary>
+        /// <param name="movieDTO">Movie data for creation.</param>
+        /// <returns>Details of the created movie.</returns>
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(APIResponse<CreateMovieDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<CreateMovieDTO>), (int)HttpStatusCode.InternalServerError)]
         [HttpPost(Name = "CreateMovie")]
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> CreateMovie([FromBody] CreateMovieDTO movieDTO)
@@ -167,6 +199,16 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing movie.
+        /// </summary>
+        /// <param name="id">The ID of the movie to update.</param>
+        /// <param name="movieDTO">Updated movie data.</param>
+        /// <returns>Status of the update.</returns>
+        [ProducesResponseType(typeof(APIResponse<UpdateMovieDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<UpdateMovieDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<UpdateMovieDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<UpdateMovieDTO>), (int)HttpStatusCode.InternalServerError)]
         [HttpPut("{id:int}", Name = "UpdateMovie")]
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> UpdateMovie([FromRoute] int id, [FromBody] UpdateMovieDTO movieDTO)
@@ -197,6 +239,14 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a movie by its ID.
+        /// </summary>
+        /// <param name="id">The movie's ID.</param>
+        /// <returns>Status of the deletion.</returns>
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<MovieDTO>), (int)HttpStatusCode.InternalServerError)]
         [HttpDelete("{id:int}", Name = "DeleteMovie")]
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> DeleteMovie(int id)
@@ -220,6 +270,13 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves the top-rated movies.
+        /// </summary>
+        /// <param name="count">Number of top-rated movies to retrieve.</param>
+        /// <returns>List of top-rated movies.</returns>
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.InternalServerError)]
         [HttpGet("top-rated/{count}", Name = "GetTopRatedMovies")]
         public async Task<IActionResult> GetTopRatedMovies([FromQuery] int count = 10)
         {
@@ -236,6 +293,13 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves the most popular movies.
+        /// </summary>
+        /// <param name="count">Number of most popular movies to retrieve.</param>
+        /// <returns>List of most popular movies.</returns>
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.InternalServerError)]
         [HttpGet("most-popular/{count}", Name = "GetMostPopularMovies")]
         public async Task<IActionResult> GetMostPopularMovies([FromQuery] int count = 10)
         {

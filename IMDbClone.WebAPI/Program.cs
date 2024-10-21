@@ -28,6 +28,8 @@ namespace IMDbClone.WebAPI
                 options.SerializerSettings.ReferenceLoopHandling
                                 = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
+                options.SerializerSettings.DateFormatString = "yyyy-MM-dd";
+
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
 
@@ -86,9 +88,23 @@ namespace IMDbClone.WebAPI
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            // Add Swagger generation
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1.0",
+                    Title = "IMDB API",
+                    Description = "API to manage IMDb Clone features",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Abdulrahman Ayman",
+                        Url = new Uri("https://github.com/abdulrahmanaymann/IMDbClone")
+                    }
+                });
+
+                // Add security definition for JWT
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme.\r\n\r\n" +
@@ -115,18 +131,6 @@ namespace IMDbClone.WebAPI
                             In = ParameterLocation.Header,
                         },
                         new List<string>()
-                    }
-                });
-
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1.0",
-                    Title = "IMDB API",
-                    Description = "API to manage IMDb Clone features",
-                    Contact = new OpenApiContact
-                    {
-                        Name = "Abdulrahman Ayman",
-                        Url = new Uri("https://github.com/abdulrahmanaymann/IMDbClone")
                     }
                 });
             });

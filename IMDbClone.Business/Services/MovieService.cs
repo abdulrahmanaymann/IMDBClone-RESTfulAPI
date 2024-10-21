@@ -7,6 +7,7 @@ using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace IMDbClone.Business.Services
 {
@@ -24,11 +25,11 @@ namespace IMDbClone.Business.Services
         }
 
         public async Task<PaginatedResult<MovieDTO>> GetAllMoviesAsync(
-                Expression<Func<Movie, bool>>? filter = null,
-                Expression<Func<Movie, object>>? orderByExpression = null,
-                bool isAscending = true,
-                int pageNumber = 1,
-                int pageSize = 10)
+            Expression<Func<Movie, bool>>? filter = null,
+            Expression<Func<Movie, object>>? orderByExpression = null,
+            bool isAscending = true,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             if (pageNumber < 1)
             {
@@ -41,6 +42,8 @@ namespace IMDbClone.Business.Services
             }
 
             var cacheKey = CacheKeys.AllMovies;
+            _cacheService.Remove(cacheKey);
+
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
                 try
@@ -54,6 +57,8 @@ namespace IMDbClone.Business.Services
                         pageNumber: pageNumber,
                         pageSize: pageSize
                     );
+
+                    movies.Items.AsQueryable().AsSplitQuery();
 
                     return new PaginatedResult<MovieDTO>
                     {

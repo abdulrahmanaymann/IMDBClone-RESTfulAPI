@@ -2,7 +2,6 @@
 using System.Net;
 using System.Security.Claims;
 using IMDbClone.Business.Services.IServices;
-using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.WatchlistDTOs;
 using IMDbClone.Core.Entities;
 using IMDbClone.Core.Responses;
@@ -16,14 +15,24 @@ namespace IMDbClone.WebAPI.Controllers
     [Authorize]
     public class WatchlistController : ControllerBase
     {
-        public readonly IWatchlistService _watchlistService;
+        private readonly IWatchlistService _watchlistService;
 
         public WatchlistController(IWatchlistService watchlistService)
         {
             _watchlistService = watchlistService;
         }
 
+        /// <summary>
+        /// Retrieves all watchlists for the authenticated user, with optional search, pagination, and error handling.
+        /// </summary>
+        /// <param name="search">Optional search term to filter watchlists by movie title.</param>
+        /// <param name="pageNumber">The page number for pagination (default is 1).</param>
+        /// <param name="pageSize">The number of items per page for pagination (default is 10).</param>
+        /// <returns>A list of watchlists for the authenticated user.</returns>
         [HttpGet]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<WatchlistDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<WatchlistDTO>>), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<WatchlistDTO>>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetAll(
             [FromQuery] string? search,
             [FromQuery] int pageNumber = 1,
@@ -59,14 +68,22 @@ namespace IMDbClone.WebAPI.Controllers
             catch (Exception ex)
             {
                 var response = APIResponse<IEnumerable<WatchlistDTO>>.CreateErrorResponse(new List<string>
-        { ex.Message });
+                { ex.Message });
 
                 return StatusCode((int)response.StatusCode, response);
             }
         }
 
-
+        /// <summary>
+        /// Retrieves a specific watchlist by its ID for the authenticated user.
+        /// </summary>
+        /// <param name="id">The ID of the watchlist to retrieve.</param>
+        /// <returns>The details of the requested watchlist.</returns>
         [HttpGet("{id:int}", Name = "GetWatchlist")]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetWatchList(int id)
         {
             if (id <= 0)
@@ -101,7 +118,6 @@ namespace IMDbClone.WebAPI.Controllers
 
                 return Ok(successResponse);
             }
-
             catch (Exception ex)
             {
                 var response = APIResponse<WatchlistDTO>.CreateErrorResponse(new List<string>
@@ -111,14 +127,23 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new watchlist for the authenticated user based on the provided data transfer object.
+        /// </summary>
+        /// <param name="watchlistDTO">The data transfer object containing watchlist details.</param>
+        /// <returns>The created watchlist information, including its ID.</returns>
         [HttpPost(Name = "CreateWatchlist")]
+        [ProducesResponseType(typeof(APIResponse<CreateWatchlistDTO>), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(APIResponse<CreateWatchlistDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<CreateWatchlistDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<CreateWatchlistDTO>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CreateWatchList([FromBody] CreateWatchlistDTO watchlistDTO)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
 
-                var response = APIResponse<CreateRatingDTO>.CreateErrorResponse(new List<string>
+                var response = APIResponse<CreateWatchlistDTO>.CreateErrorResponse(new List<string>
                 { "Invalid model object" }, HttpStatusCode.BadRequest);
 
                 return BadRequest(response);
@@ -141,7 +166,6 @@ namespace IMDbClone.WebAPI.Controllers
 
                 return CreatedAtRoute(nameof(GetWatchList), new { id = createdWatchList.Id }, response);
             }
-
             catch (Exception ex)
             {
                 var response = APIResponse<WatchlistDTO>.CreateErrorResponse(new List<string>
@@ -150,7 +174,16 @@ namespace IMDbClone.WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a specific watchlist by its ID for the authenticated user.
+        /// </summary>
+        /// <param name="id">The ID of the watchlist to delete.</param>
+        /// <returns>No content if the deletion is successful.</returns>
         [HttpDelete("{id:int}", Name = "DeleteWatchlist")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(APIResponse<WatchlistDTO>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> DeleteWatchlist(int id)
         {
             if (id <= 0)
@@ -173,10 +206,8 @@ namespace IMDbClone.WebAPI.Controllers
             try
             {
                 await _watchlistService.DeleteWatchlistAsync(id, userId);
-
                 return NoContent();
             }
-
             catch (Exception ex)
             {
                 var response = APIResponse<WatchlistDTO>.CreateErrorResponse(new List<string>

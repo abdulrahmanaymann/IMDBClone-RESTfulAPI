@@ -38,8 +38,8 @@ namespace IMDbClone.Business.Mapper
             CreateMap<Review, UpdateReviewDTO>().ReverseMap();
 
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
-            CreateMap<ApplicationUser, LoginResponseDTO>();
-            CreateMap<RegisterationRequestDTO, ApplicationUser>();
+            CreateMap<ApplicationUser, LoginResponseDTO>().ReverseMap();
+            CreateMap<RegisterationRequestDTO, ApplicationUser>().ReverseMap();
 
             CreateMap<Watchlist, WatchlistDTO>()
            .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.Movie.Title))
