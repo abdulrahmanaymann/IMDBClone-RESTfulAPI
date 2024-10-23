@@ -29,6 +29,12 @@ namespace IMDbClone.Business.Mapper
                 .ForMember(dest => dest.Cast, opt => opt.MapFrom(src => src.CastList))
                 .ReverseMap();
 
+            CreateMap<Movie, MovieSummaryDTO>()
+                .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src =>
+                    src.Ratings.Count != 0 ? Math.Round(src.Ratings.Average(r => r.Score), 1) : 0))
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count));
+
+
             CreateMap<Rating, RatingDTO>().ReverseMap();
             CreateMap<Rating, CreateRatingDTO>().ReverseMap();
             CreateMap<Rating, UpdateRatingDTO>().ReverseMap();
@@ -40,14 +46,15 @@ namespace IMDbClone.Business.Mapper
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
             CreateMap<ApplicationUser, LoginResponseDTO>().ReverseMap();
             CreateMap<RegisterationRequestDTO, ApplicationUser>().ReverseMap();
+            CreateMap<ApplicationUser, UserProfileDTO>().ReverseMap();
 
             CreateMap<Watchlist, WatchlistDTO>()
-           .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.Movie.Title))
-           .ReverseMap();
+               .ForMember(dest => dest.MovieTitle, opt => opt.MapFrom(src => src.Movie.Title))
+               .ReverseMap();
             CreateMap<Watchlist, CreateWatchlistDTO>().ReverseMap();
 
             CreateMap<PaginatedResult<Rating>, PaginatedResult<RatingDTO>>()
-                    .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
+                        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
 
             CreateMap<PaginatedResult<Review>, PaginatedResult<ReviewDTO>>()
                     .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));

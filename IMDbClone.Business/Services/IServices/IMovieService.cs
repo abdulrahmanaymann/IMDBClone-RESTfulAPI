@@ -7,13 +7,12 @@ namespace IMDbClone.Business.Services.IServices
 {
     public interface IMovieService
     {
-        Task<PaginatedResult<MovieDTO>> GetAllMoviesAsync(
+        Task<PaginatedResult<MovieSummaryDTO>> GetAllMoviesAsync(
             Expression<Func<Movie, bool>>? filter = null,
             Expression<Func<Movie, object>>? orderByExpression = null,
             bool isAscending = true,
             int pageNumber = 1,
-            int pageSize = 10
-            );
+            int pageSize = 10);
 
         Task<MovieDTO> GetMovieByIdAsync(int id);
 
@@ -23,8 +22,8 @@ namespace IMDbClone.Business.Services.IServices
 
         Task DeleteMovieAsync(int id);
 
-        Task<IEnumerable<MovieDTO>> GetTopRatedMoviesAsync(int count);
+        Task<PaginatedResult<MovieSummaryDTO>> GetTopRatedMoviesAsync(int pageNumber, int pageSize);
 
-        Task<IEnumerable<MovieDTO>> GetMostPopularMoviesAsync(int count);
+        Task<PaginatedResult<MovieSummaryDTO>> GetMostPopularMoviesAsync(int pageNumber, int pageSize);
     }
 }

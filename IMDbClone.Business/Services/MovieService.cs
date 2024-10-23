@@ -24,7 +24,7 @@ namespace IMDbClone.Business.Services
             _cacheService = cacheService;
         }
 
-        public async Task<PaginatedResult<MovieDTO>> GetAllMoviesAsync(
+        public async Task<PaginatedResult<MovieSummaryDTO>> GetAllMoviesAsync(
             Expression<Func<Movie, bool>>? filter = null,
             Expression<Func<Movie, object>>? orderByExpression = null,
             bool isAscending = true,
@@ -55,14 +55,13 @@ namespace IMDbClone.Business.Services
                                 (isAscending ? m => m.Title : (m => m.Title)),
                         isAscending: isAscending,
                         pageNumber: pageNumber,
-                        pageSize: pageSize
+                        pageSize: pageSize,
+                        trackChanges: false
                     );
 
-                    movies.Items.AsQueryable().AsSplitQuery();
-
-                    return new PaginatedResult<MovieDTO>
+                    return new PaginatedResult<MovieSummaryDTO>
                     {
-                        Items = _mapper.Map<IEnumerable<MovieDTO>>(movies.Items),
+                        Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(movies.Items),
                         TotalCount = movies.TotalCount,
                         PageNumber = movies.PageNumber,
                         PageSize = movies.PageSize
@@ -136,25 +135,43 @@ namespace IMDbClone.Business.Services
             _cacheService.Remove(CacheKeys.AllMovies);
         }
 
-        public async Task<IEnumerable<MovieDTO>> GetTopRatedMoviesAsync(int count)
+        public async Task<PaginatedResult<MovieSummaryDTO>> GetTopRatedMoviesAsync(int pageNumber, int pageSize)
         {
-            var cacheKey = CacheKeys.TopRatedMovies(count);
+            var cacheKey = CacheKeys.TopRatedMovies(pageNumber, pageSize);
 
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                var topRatedMovies = await _unitOfWork.Movie.GetTopRatedMoviesAsync(count);
-                return _mapper.Map<IEnumerable<MovieDTO>>(topRatedMovies);
+                var paginatedResult = await _unitOfWork.Movie
+                        .GetTopRatedMoviesAsync(pageNumber, pageSize, includeProperties: "Reviews,Ratings");
+
+                paginatedResult.Items.AsQueryable().AsSplitQuery();
+
+                return new PaginatedResult<MovieSummaryDTO>
+                {
+                    Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(paginatedResult.Items),
+                    TotalCount = paginatedResult.TotalCount,
+                    PageNumber = paginatedResult.PageNumber,
+                    PageSize = paginatedResult.PageSize
+                };
             });
         }
 
-        public async Task<IEnumerable<MovieDTO>> GetMostPopularMoviesAsync(int count)
+        public async Task<PaginatedResult<MovieSummaryDTO>> GetMostPopularMoviesAsync(int pageNumber, int pageSize)
         {
-            var cacheKey = CacheKeys.MostPopularMovies(count);
+            var cacheKey = CacheKeys.MostPopularMovies(pageNumber, pageSize);
 
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                var popularMovies = await _unitOfWork.Movie.GetMostPopularMoviesAsync(count);
-                return _mapper.Map<IEnumerable<MovieDTO>>(popularMovies);
+                var paginatedResult = await _unitOfWork.Movie
+                    .GetMostPopularMoviesAsync(pageNumber, pageSize, includeProperties: "Reviews,Ratings");
+
+                return new PaginatedResult<MovieSummaryDTO>
+                {
+                    Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(paginatedResult.Items),
+                    TotalCount = paginatedResult.TotalCount,
+                    PageNumber = paginatedResult.PageNumber,
+                    PageSize = paginatedResult.PageSize
+                };
             });
         }
     }

@@ -109,7 +109,7 @@ namespace IMDbClone.WebAPI.Controllers
 
                 if (!isValidFilter)
                 {
-                    return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(new List<MovieDTO>(),
+                    return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(new List<MovieSummaryDTO>(),
                         HttpStatusCode.NoContent));
                 }
 
@@ -119,9 +119,10 @@ namespace IMDbClone.WebAPI.Controllers
                     isAscending: isAscending,
                     pageNumber: pageNumber,
                     pageSize: pageSize
+
                 );
 
-                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies.Items));
+                return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(movies.Items));
             }
             catch (Exception ex)
             {
@@ -273,46 +274,62 @@ namespace IMDbClone.WebAPI.Controllers
         /// <summary>
         /// Retrieves the top-rated movies.
         /// </summary>
-        /// <param name="count">Number of top-rated movies to retrieve.</param>
+        /// <param name="pageNumber">The page number for pagination. Default is 1.</param>
+        /// <param name="pageSize">The number of top-rated movies to retrieve per page. Default is 10.</param>
         /// <returns>List of top-rated movies.</returns>
-        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.InternalServerError)]
-        [HttpGet("top-rated/{count}", Name = "GetTopRatedMovies")]
-        public async Task<IActionResult> GetTopRatedMovies([FromQuery] int count = 10)
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieSummaryDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieSummaryDTO>>), (int)HttpStatusCode.InternalServerError)]
+        [HttpGet("top-rated/{pageNumber:int=1}/{pageSize:int=10}", Name = "GetTopRatedMovies")]
+        public async Task<IActionResult> GetTopRatedMovies([FromRoute] int pageNumber = 1, [FromRoute] int pageSize = 10)
         {
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                var errorResponse = APIResponse<IEnumerable<MovieSummaryDTO>>.CreateErrorResponse(
+                    new List<string> { "Page number and page size must be greater than zero." });
+                return BadRequest(errorResponse);
+            }
+
             try
             {
-                var movies = await _movieService.GetTopRatedMoviesAsync(count);
-                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies));
+                var paginatedResult = await _movieService.GetTopRatedMoviesAsync(pageNumber, pageSize);
+                return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(paginatedResult.Items));
             }
             catch (Exception ex)
             {
-                var response = APIResponse<IEnumerable<MovieDTO>>.CreateErrorResponse(new List<string>
-                { ex.Message });
-                return StatusCode((int)response.StatusCode, response);
+                var response = APIResponse<IEnumerable<MovieSummaryDTO>>.CreateErrorResponse(
+                    new List<string> { "An error occurred while retrieving top-rated movies.", ex.Message });
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
             }
         }
 
         /// <summary>
         /// Retrieves the most popular movies.
         /// </summary>
-        /// <param name="count">Number of most popular movies to retrieve.</param>
+        /// <param name="pageNumber">The page number for pagination. Default is 1.</param>
+        /// <param name="pageSize">The number of most popular movies to retrieve per page. Default is 10.</param>
         /// <returns>List of most popular movies.</returns>
-        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieDTO>>), (int)HttpStatusCode.InternalServerError)]
-        [HttpGet("most-popular/{count}", Name = "GetMostPopularMovies")]
-        public async Task<IActionResult> GetMostPopularMovies([FromQuery] int count = 10)
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieSummaryDTO>>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(APIResponse<IEnumerable<MovieSummaryDTO>>), (int)HttpStatusCode.InternalServerError)]
+        [HttpGet("most-popular/{pageNumber:int=1}/{pageSize:int=10}", Name = "GetMostPopularMovies")]
+        public async Task<IActionResult> GetMostPopularMovies([FromRoute] int pageNumber = 1, [FromRoute] int pageSize = 10)
         {
+            if (pageNumber <= 0 || pageSize <= 0)
+            {
+                var errorResponse = APIResponse<IEnumerable<MovieSummaryDTO>>.CreateErrorResponse(
+                    new List<string> { "Page number and page size must be greater than zero." });
+                return BadRequest(errorResponse);
+            }
+
             try
             {
-                var movies = await _movieService.GetMostPopularMoviesAsync(count);
-                return Ok(APIResponse<IEnumerable<MovieDTO>>.CreateSuccessResponse(movies));
+                var paginatedResult = await _movieService.GetMostPopularMoviesAsync(pageNumber, pageSize);
+                return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(paginatedResult.Items));
             }
             catch (Exception ex)
             {
-                var response = APIResponse<IEnumerable<MovieDTO>>.CreateErrorResponse(new List<string>
-                { ex.Message });
-                return StatusCode((int)response.StatusCode, response);
+                var response = APIResponse<IEnumerable<MovieSummaryDTO>>.CreateErrorResponse(new List<string>
+            { "An error occurred while retrieving most popular movies.", ex.Message });
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
             }
         }
     }

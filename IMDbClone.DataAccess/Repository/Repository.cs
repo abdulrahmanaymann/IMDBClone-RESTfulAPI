@@ -24,9 +24,10 @@ namespace IMDbClone.DataAccess.Repository
             Expression<Func<T, object>>? orderByExpression = null,
             bool isAscending = true,
             int pageNumber = 1,
-            int pageSize = 10)
+            int pageSize = 10,
+            bool trackChanges = true)
         {
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -45,10 +46,18 @@ namespace IMDbClone.DataAccess.Repository
                 query = isAscending ? query.OrderBy(orderByExpression) : query.OrderByDescending(orderByExpression);
             }
 
+            else
+            {
+                query = query.OrderBy(x => x);
+            }
+
             var totalCount = await query.CountAsync();
 
             // Apply pagination
-            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query.AsSplitQuery()
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToListAsync();
 
             return new PaginatedResult<T>
             {
@@ -59,9 +68,10 @@ namespace IMDbClone.DataAccess.Repository
             };
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null,
+            string? includeProperties = null, bool trackChanges = true)
         {
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
             if (filter != null)
             {
                 query = query.Where(filter);

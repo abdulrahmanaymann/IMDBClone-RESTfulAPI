@@ -18,8 +18,10 @@
 
         public static string WatchlistByUserId(string userId) => $"Watchlist_User_{userId}";
 
-        public static string TopRatedMovies(int count) => $"top_rated_movies_{count}";
+        public static string TopRatedMovies(int pageNumber, int pageSize)
+                    => $"top_rated_movies_{pageNumber}_{pageSize}";
 
-        public static string MostPopularMovies(int count) => $"most_popular_movies_{count}";
+        public static string MostPopularMovies(int pageNumber, int pageSize)
+                    => $"most_popular_movies_{pageNumber}_{pageSize}";
     }
 }

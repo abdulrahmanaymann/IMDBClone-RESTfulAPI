@@ -89,7 +89,7 @@ namespace IMDbClone.WebAPI.Controllers
         /// <param name="ratingDTO">The rating data transfer object containing the rating information.</param>
         /// <returns>An API response indicating the result of the creation.</returns>
         [HttpPost(Name = "CreateRating")]
-        [Authorize]
+        //[Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,4 +1,5 @@
 ﻿using IMDbClone.Core.Entities;
+using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.DataAccess.Repository.IRepository
 {
@@ -6,8 +7,16 @@ namespace IMDbClone.DataAccess.Repository.IRepository
     {
         Task UpdateAsync(Movie movie);
 
-        Task<IEnumerable<Movie>> GetTopRatedMoviesAsync(int count);
+        Task<PaginatedResult<Movie>> GetTopRatedMoviesAsync(
+            int pageNumber,
+            int pageSize,
+            bool trackChanges = true,
+            string? includeProperties = null);
 
-        Task<IEnumerable<Movie>> GetMostPopularMoviesAsync(int count);
+        Task<PaginatedResult<Movie>> GetMostPopularMoviesAsync(
+            int pageNumber,
+            int pageSize,
+            bool trackChanges = true,
+            string? includeProperties = null);
     }
 }

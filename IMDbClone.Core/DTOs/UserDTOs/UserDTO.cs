@@ -1,4 +1,5 @@
-﻿using IMDbClone.Core.DTOs.MovieDTOs;
+﻿using System.ComponentModel.DataAnnotations;
+using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
 using IMDbClone.Core.Validation;
@@ -11,6 +12,7 @@ namespace IMDbClone.Core.DTOs.UserDTOs
 
         public string UserName { get; set; } = string.Empty;
 
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [FullName]

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using AutoMapper;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common;
@@ -8,6 +9,7 @@ using IMDbClone.Core.Entities;
 using IMDbClone.Core.Responses;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace IMDbClone.Business.Services
 {
@@ -25,6 +27,8 @@ namespace IMDbClone.Business.Services
 
         private readonly IMapper _mapper;
 
+        private readonly int _refreshTokenExpiryDays;
+
 
         public AuthService(
             IUnitOfWork unitOfWork,
@@ -32,7 +36,8 @@ namespace IMDbClone.Business.Services
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             ITokenService tokenService,
-            IMapper mapper)
+            IMapper mapper,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -40,16 +45,18 @@ namespace IMDbClone.Business.Services
             _roleManager = roleManager;
             _tokenService = tokenService;
             _mapper = mapper;
+            _refreshTokenExpiryDays = int.Parse(configuration["JwtSettings:RefreshTokenExpiryDays"]!);
         }
 
         public async Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginDTO)
         {
-            var user = await _userManager.FindByNameAsync(loginDTO.UserName);
+            var user = await _userManager.FindByEmailAsync(loginDTO.Email);
             if (user == null)
             {
                 return new LoginResponseDTO()
                 {
                     Token = "",
+                    RefreshToken = "",
                     User = null,
                     Message = "Invalid username or password."
                 };
@@ -61,20 +68,30 @@ namespace IMDbClone.Business.Services
                 return new LoginResponseDTO()
                 {
                     Token = "",
+                    RefreshToken = "",
                     User = null,
                     Message = "Invalid username or password."
                 };
             }
 
             var token = _tokenService.CreateToken(user);
+            var refreshToken = _tokenService.CreateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
+
+            await _userManager.UpdateAsync(user);
 
             return new LoginResponseDTO()
             {
                 Token = token,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
                 User = _mapper.Map<UserDTO>(user),
                 Message = "Login successful."
             };
         }
+
 
         public async Task<APIResponse<UserDTO>> RegisterAsync(RegisterationRequestDTO registerDTO)
         {
@@ -110,6 +127,90 @@ namespace IMDbClone.Business.Services
                     new List<string> { "An error occurred while creating the user. Please try again later." },
                     HttpStatusCode.InternalServerError);
             }
+        }
+
+        public async Task<APIResponse<UserProfileDTO>> GetUserProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return APIResponse<UserProfileDTO>.CreateErrorResponse(
+                    new List<string> { "User not found." },
+                    HttpStatusCode.NotFound);
+            }
+
+            var userDTO = _mapper.Map<UserProfileDTO>(user);
+
+            return APIResponse<UserProfileDTO>.CreateSuccessResponse(userDTO);
+        }
+
+        public async Task<APIResponse<UserProfileDTO>> UpdateUserProfileAsync(string userId, UserProfileDTO userDTO)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return APIResponse<UserProfileDTO>.CreateErrorResponse(
+                    new List<string> { "User not found." },
+                    HttpStatusCode.NotFound);
+            }
+
+            _mapper.Map(userDTO, user);
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return APIResponse<UserProfileDTO>.CreateErrorResponse(errors, HttpStatusCode.BadRequest);
+            }
+
+            return APIResponse<UserProfileDTO>.CreateSuccessResponse(userDTO);
+        }
+
+        public async Task<LoginResponseDTO> RefreshTokenAsync(string token, string refreshToken)
+        {
+            var principal = _tokenService.GetPrincipalFromExpiredToken(token);
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return new LoginResponseDTO()
+                {
+                    Token = "",
+                    RefreshToken = "",
+                    User = null,
+                    Message = "Invalid refresh token or token expired."
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                return new LoginResponseDTO()
+                {
+                    Token = "",
+                    RefreshToken = "",
+                    User = null,
+                    Message = "Invalid refresh token or token expired."
+                };
+            }
+
+            var newToken = _tokenService.CreateToken(user);
+            var newRefreshToken = _tokenService.CreateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
+
+            await _userManager.UpdateAsync(user);
+
+            return new LoginResponseDTO()
+            {
+                Token = newToken,
+                RefreshToken = newRefreshToken,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                User = _mapper.Map<UserDTO>(user),
+                Message = "Token refreshed successfully."
+            };
         }
     }
 }

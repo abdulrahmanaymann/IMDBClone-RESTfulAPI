@@ -37,8 +37,12 @@ namespace IMDbClone.Core.Entities
                 : string.Empty;
         }
 
-        // Dynamic property to calculate the average rating at runtime (not stored in the database)
         [NotMapped]
-        public decimal AverageRating => Ratings.Count > 0 ? Ratings.Average(r => r.Score) : 0;
+        public decimal AverageRating => Ratings.Count > 0
+            ? Math.Round(Ratings.Average(r => r.Score), 1)
+            : 0;
+
+        [NotMapped]
+        public int ReviewCount => Reviews.Count;
     }
 }

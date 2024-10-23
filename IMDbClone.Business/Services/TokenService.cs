@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.Entities;
@@ -12,12 +13,15 @@ namespace IMDbClone.Business.Services
     {
         private readonly SymmetricSecurityKey _key;
 
+        private readonly int _tokenExpiryMinutes;
+
         private readonly IConfiguration _config;
 
         public TokenService(IConfiguration config)
         {
             _config = config;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]!));
+            _tokenExpiryMinutes = int.Parse(_config["JwtSettings:TokenExpiryMinutes"]!);
         }
 
         public string CreateToken(ApplicationUser user)
@@ -38,7 +42,7 @@ namespace IMDbClone.Business.Services
             SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(_tokenExpiryMinutes),
                 SigningCredentials = creds,
                 Issuer = _config["JwtSettings:Issuer"],
                 Audience = _config["JwtSettings:Audience"]
@@ -52,6 +56,38 @@ namespace IMDbClone.Business.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public string CreateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
 
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _key,
+                ValidateLifetime = false
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new();
+            SecurityToken securityToken;
+            ClaimsPrincipal principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg
+                        .Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
+        }
     }
 }
