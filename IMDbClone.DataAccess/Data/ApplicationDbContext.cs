@@ -26,6 +26,10 @@ namespace IMDbClone.DataAccess.Data
                 .HasDatabaseName("IX_Movies_Director");
 
             modelBuilder.Entity<Movie>()
+                .HasIndex(m => new { m.Director, m.Genre })
+                .HasDatabaseName("IX_Movies_Director_Genre");
+
+            modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.Language)
                 .HasDatabaseName("IX_Movies_Language");
 
@@ -36,6 +40,22 @@ namespace IMDbClone.DataAccess.Data
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => new { m.Genre, m.ReleaseDate })
                 .HasDatabaseName("IX_Movies_Genre_ReleaseDate");
+
+            modelBuilder.Entity<Rating>()
+                .HasIndex(r => r.MovieId)
+                .HasDatabaseName("IX_Ratings_MovieId");
+
+            modelBuilder.Entity<Rating>()
+                .HasIndex(r => r.UserId)
+                .HasDatabaseName("IX_Ratings_UserId");
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => r.MovieId)
+                .HasDatabaseName("IX_Reviews_MovieId");
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => r.UserId)
+                .HasDatabaseName("IX_Reviews_UserId");
 
             base.OnModelCreating(modelBuilder);
         }

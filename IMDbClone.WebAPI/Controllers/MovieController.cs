@@ -328,7 +328,7 @@ namespace IMDbClone.WebAPI.Controllers
             catch (Exception ex)
             {
                 var response = APIResponse<IEnumerable<MovieSummaryDTO>>.CreateErrorResponse(new List<string>
-            { "An error occurred while retrieving most popular movies.", ex.Message });
+                { "An error occurred while retrieving most popular movies.", ex.Message });
                 return StatusCode((int)HttpStatusCode.InternalServerError, response);
             }
         }

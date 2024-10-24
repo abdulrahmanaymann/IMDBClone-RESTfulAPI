@@ -34,6 +34,8 @@ namespace IMDbClone.WebAPI
             });
 
             // Add services to the container.
+
+            // Configure CacheSettings
             builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
 
             // Register the distributed memory cache with the DI container
@@ -152,11 +154,11 @@ namespace IMDbClone.WebAPI
 
             app.MapControllers();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
-                await dbInitializer.Initialize();
-            }
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
+            //    await dbInitializer.Initialize();
+            //}
 
             app.Run();
         }

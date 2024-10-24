@@ -18,16 +18,31 @@ namespace IMDbClone.DataAccess.Repository
             _dbSet = _context.Set<T>();
         }
 
+        internal static IQueryable<T> ApplyIncludes(string? includeProperties, IQueryable<T> query)
+        {
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                var includeList = includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var include in includeList)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return query;
+        }
+
         public async Task<PaginatedResult<T>> GetAllAsync(
-            Expression<Func<T, bool>>? filter = null,
-            string? includeProperties = null,
-            Expression<Func<T, object>>? orderByExpression = null,
-            bool isAscending = true,
-            int pageNumber = 1,
-            int pageSize = 10,
-            bool trackChanges = true)
+                 Expression<Func<T, bool>>? filter = null,
+                 string? includeProperties = null,
+                 Expression<Func<T, object>>? orderByExpression = null,
+                 bool isAscending = true,
+                 int pageNumber = 1,
+                 int pageSize = 10,
+                 bool trackChanges = true)
         {
             IQueryable<T> query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -35,29 +50,20 @@ namespace IMDbClone.DataAccess.Repository
 
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var item in includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(item);
-                }
+                query = ApplyIncludes(includeProperties, query);
+                query = query.AsSplitQuery();
             }
 
-            if (orderByExpression != null)
-            {
-                query = isAscending ? query.OrderBy(orderByExpression) : query.OrderByDescending(orderByExpression);
-            }
-
-            else
-            {
-                query = query.OrderBy(x => x);
-            }
+            query = orderByExpression != null
+                ? (isAscending ? query.OrderBy(orderByExpression) : query.OrderByDescending(orderByExpression))
+                : query.OrderBy(x => x);
 
             var totalCount = await query.CountAsync();
 
-            // Apply pagination
-            var items = await query.AsSplitQuery()
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
+            var items = await query
+                                .Skip((pageNumber - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync();
 
             return new PaginatedResult<T>
             {
@@ -77,15 +83,9 @@ namespace IMDbClone.DataAccess.Repository
                 query = query.Where(filter);
             }
 
-            if (!string.IsNullOrEmpty(includeProperties))
-            {
-                foreach (var item in includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(item);
-                }
-            }
+            query = ApplyIncludes(includeProperties, query);
 
-            return await query.FirstOrDefaultAsync() ?? default!;
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(T entity)

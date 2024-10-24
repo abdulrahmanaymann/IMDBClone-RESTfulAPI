@@ -16,8 +16,11 @@ namespace IMDbClone.Business.Services
             _cacheSettings = cacheSettings.Value;
         }
 
-        public async Task<T> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> createItemAsync,
-                TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
+        public async Task<T> GetOrCreateAsync<T>(
+                string cacheKey,
+                Func<Task<T>> createItemAsync,
+                TimeSpan? absoluteExpiration = null,
+                TimeSpan? slidingExpiration = null)
         {
             ArgumentNullException.ThrowIfNull(createItemAsync);
 
@@ -35,6 +38,7 @@ namespace IMDbClone.Business.Services
             }
             return cachedItem;
         }
+
 
         public void Remove(string cacheKey)
         {

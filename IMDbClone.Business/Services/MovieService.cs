@@ -7,7 +7,6 @@ using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace IMDbClone.Business.Services
 {
@@ -137,41 +136,85 @@ namespace IMDbClone.Business.Services
 
         public async Task<PaginatedResult<MovieSummaryDTO>> GetTopRatedMoviesAsync(int pageNumber, int pageSize)
         {
-            var cacheKey = CacheKeys.TopRatedMovies(pageNumber, pageSize);
+            if (pageNumber < 1)
+            {
+                throw new ApiException("Page number must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
 
+            if (pageSize < 1)
+            {
+                throw new ApiException("Page size must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
+
+            var cacheKey = CacheKeys.TopRatedMovies(pageNumber, pageSize);
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                var paginatedResult = await _unitOfWork.Movie
-                        .GetTopRatedMoviesAsync(pageNumber, pageSize, includeProperties: "Reviews,Ratings");
-
-                paginatedResult.Items.AsQueryable().AsSplitQuery();
-
-                return new PaginatedResult<MovieSummaryDTO>
+                try
                 {
-                    Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(paginatedResult.Items),
-                    TotalCount = paginatedResult.TotalCount,
-                    PageNumber = paginatedResult.PageNumber,
-                    PageSize = paginatedResult.PageSize
-                };
+                    var movies = await _unitOfWork.Movie.GetAllAsync(
+                        includeProperties: "Reviews,Ratings",
+                        orderByExpression: m => m.Ratings.Average(r => r.Score),
+                        isAscending: false,
+                        pageNumber: pageNumber,
+                        pageSize: pageSize,
+                        trackChanges: false
+                    );
+
+                    return new PaginatedResult<MovieSummaryDTO>
+                    {
+                        Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(movies.Items),
+                        TotalCount = movies.TotalCount,
+                        PageNumber = movies.PageNumber,
+                        PageSize = movies.PageSize
+                    };
+                }
+                catch (Exception ex)
+                {
+                    throw new ApiException("An error occurred while retrieving top-rated movies.",
+                        HttpStatusCodes.InternalServerError, ex);
+                }
             });
         }
 
         public async Task<PaginatedResult<MovieSummaryDTO>> GetMostPopularMoviesAsync(int pageNumber, int pageSize)
         {
-            var cacheKey = CacheKeys.MostPopularMovies(pageNumber, pageSize);
+            if (pageNumber < 1)
+            {
+                throw new ApiException("Page number must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
 
+            if (pageSize < 1)
+            {
+                throw new ApiException("Page size must be greater than zero.", HttpStatusCodes.BadRequest);
+            }
+
+            var cacheKey = CacheKeys.MostPopularMovies(pageNumber, pageSize);
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                var paginatedResult = await _unitOfWork.Movie
-                    .GetMostPopularMoviesAsync(pageNumber, pageSize, includeProperties: "Reviews,Ratings");
-
-                return new PaginatedResult<MovieSummaryDTO>
+                try
                 {
-                    Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(paginatedResult.Items),
-                    TotalCount = paginatedResult.TotalCount,
-                    PageNumber = paginatedResult.PageNumber,
-                    PageSize = paginatedResult.PageSize
-                };
+                    var movies = await _unitOfWork.Movie.GetAllAsync(
+                        includeProperties: "Reviews,Ratings",
+                        orderByExpression: m => m.Reviews.Count,
+                        isAscending: false,
+                        pageNumber: pageNumber,
+                        pageSize: pageSize,
+                        trackChanges: false
+                    );
+
+                    return new PaginatedResult<MovieSummaryDTO>
+                    {
+                        Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(movies.Items),
+                        TotalCount = movies.TotalCount,
+                        PageNumber = movies.PageNumber,
+                        PageSize = movies.PageSize
+                    };
+                }
+                catch (Exception ex)
+                {
+                    throw new ApiException("An error occurred while retrieving most popular movies.",
+                        HttpStatusCodes.InternalServerError, ex);
+                }
             });
         }
     }

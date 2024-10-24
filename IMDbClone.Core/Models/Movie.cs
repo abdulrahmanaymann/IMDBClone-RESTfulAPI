@@ -43,6 +43,6 @@ namespace IMDbClone.Core.Entities
             : 0;
 
         [NotMapped]
-        public int ReviewCount => Reviews.Count;
+        public int ReviewCount => Reviews?.Count() ?? 0;
     }
 }
