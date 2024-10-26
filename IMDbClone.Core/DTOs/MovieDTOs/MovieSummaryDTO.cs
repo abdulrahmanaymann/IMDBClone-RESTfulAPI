@@ -15,7 +15,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
 
         [Required]
         [JsonConverter(typeof(StringEnumConverter))]
-        public Genre Genre { get; set; }
+        public GenreEnum Genre { get; set; }
 
         [Required]
         public DateTime ReleaseDate { get; set; }

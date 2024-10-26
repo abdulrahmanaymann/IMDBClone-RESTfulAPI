@@ -63,7 +63,7 @@ namespace IMDbClone.WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(genre))
                 {
-                    if (Enum.TryParse<Genre>(genre, true, out var genreEnum))
+                    if (Enum.TryParse<GenreEnum>(genre, true, out var genreEnum))
                     {
                         filter = filter.And(m => m.Genre == genreEnum);
                     }

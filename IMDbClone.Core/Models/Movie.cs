@@ -8,7 +8,7 @@ namespace IMDbClone.Core.Entities
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public Genre Genre { get; set; }  // Enum for genre like Action, Drama, etc.
+        public GenreEnum Genre { get; set; }  // Enum for genre like Action, Drama, etc.
         public DateTime ReleaseDate { get; set; } = DateTime.UtcNow;
         public string Synopsis { get; set; } = string.Empty; // Short description of the movie
         [Url]

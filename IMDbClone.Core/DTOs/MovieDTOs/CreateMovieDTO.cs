@@ -10,7 +10,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
         public string Title { get; set; } = string.Empty;
 
         [Required]
-        public Genre Genre { get; set; }
+        public GenreEnum Genre { get; set; }
 
         [Required]
         public DateTime ReleaseDate { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace IMDbClone.Core.Enums
 {
-    public enum Genre
+    public enum GenreEnum
     {
         Action = 1,
         Adventure,
@@ -25,6 +25,7 @@
         Superhero,
         Thriller,
         War,
-        Western
+        Western,
+        Other
     }
 }

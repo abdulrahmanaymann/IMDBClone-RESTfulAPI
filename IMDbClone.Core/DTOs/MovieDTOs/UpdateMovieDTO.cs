@@ -8,7 +8,7 @@ namespace IMDbClone.Core.DTOs.MovieDTOs
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Title must be between 3 and 100 characters.")]
         public string? Title { get; set; }
 
-        public Genre? Genre { get; set; }
+        public GenreEnum? Genre { get; set; }
 
         public DateTime? ReleaseDate { get; set; }
 

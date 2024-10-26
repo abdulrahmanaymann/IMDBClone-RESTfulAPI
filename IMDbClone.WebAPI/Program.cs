@@ -154,11 +154,11 @@ namespace IMDbClone.WebAPI
 
             app.MapControllers();
 
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
-            //    await dbInitializer.Initialize();
-            //}
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
+                await dbInitializer.Initialize();
+            }
 
             app.Run();
         }
