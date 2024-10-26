@@ -44,7 +44,7 @@ namespace IMDbClone.WebAPI
             // Register the ApplicationDbContext with the DI container
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
             // Register the AutoMapper with the DI container
