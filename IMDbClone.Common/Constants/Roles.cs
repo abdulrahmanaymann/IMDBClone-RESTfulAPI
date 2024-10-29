@@ -1,4 +1,4 @@
-﻿namespace IMDbClone.Common
+﻿namespace IMDbClone.Common.Constants
 {
     public static class Roles
     {

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Net;
 using IMDbClone.Business.Services.IServices;
-using IMDbClone.Common;
+using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.MovieDTOs;
 using IMDbClone.Core.Enums;
 using IMDbClone.Core.Models;

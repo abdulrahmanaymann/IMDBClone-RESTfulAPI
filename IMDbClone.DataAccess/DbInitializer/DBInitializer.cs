@@ -1,4 +1,4 @@
-﻿using IMDbClone.Common;
+﻿using IMDbClone.Common.Constants;
 using IMDbClone.Core.Models;
 using IMDbClone.DataAccess.Data;
 using Microsoft.AspNetCore.Identity;
@@ -23,11 +23,11 @@ namespace IMDbClone.DataAccess.DbInitializer
         private readonly string _adminPassword;
 
         public DbInitializer(
-              UserManager<ApplicationUser> userManager,
-              RoleManager<IdentityRole> roleManager,
-              ApplicationDbContext context,
-              ILogger<DbInitializer> logger,
-              IConfiguration configuration)
+             UserManager<ApplicationUser> userManager,
+             RoleManager<IdentityRole> roleManager,
+             ApplicationDbContext context,
+             ILogger<DbInitializer> logger,
+             IConfiguration configuration)
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -35,12 +35,11 @@ namespace IMDbClone.DataAccess.DbInitializer
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            _adminUserName = _configuration["AdminUser:UserName"] ?? throw new ArgumentNullException(nameof(_adminUserName));
-            _adminEmail = _configuration["AdminUser:Email"] ?? throw new ArgumentNullException(nameof(_adminEmail));
-            _adminName = _configuration["AdminUser:Name"] ?? throw new ArgumentNullException(nameof(_adminName));
-            _adminPassword = _configuration["AdminUser:Password"] ?? throw new ArgumentNullException(nameof(_adminPassword));
+            _adminUserName = _configuration["AdminUser:UserName"] ?? throw new ArgumentException("AdminUser:UserName is required", nameof(_configuration));
+            _adminEmail = _configuration["AdminUser:Email"] ?? throw new ArgumentException("AdminUser:Email is required", nameof(_configuration));
+            _adminName = _configuration["AdminUser:Name"] ?? throw new ArgumentException("AdminUser:Name is required", nameof(_configuration));
+            _adminPassword = _configuration["AdminUser:Password"] ?? throw new ArgumentException("AdminUser:Password is required", nameof(_configuration));
         }
-
 
         public async Task Initialize()
         {

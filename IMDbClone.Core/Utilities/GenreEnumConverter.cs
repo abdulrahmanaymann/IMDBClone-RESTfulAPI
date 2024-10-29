@@ -21,7 +21,7 @@ public class GenreEnumConverter : JsonConverter<GenreEnum>
         {
             return Enum.Parse<GenreEnum>(reader.Value.ToString());
         }
-        
+
         throw new JsonSerializationException("Unexpected token type for GenreEnum.");
     }
 }

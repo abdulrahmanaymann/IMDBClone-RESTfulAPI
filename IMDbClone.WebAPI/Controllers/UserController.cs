@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Net;
 using IMDbClone.Business.Services.IServices;
+using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.Models;
 using IMDbClone.Core.Responses;
@@ -10,9 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IMDbClone.WebAPI.Controllers
 {
+    [Authorize(Roles = Roles.Admin)]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -31,6 +32,8 @@ namespace IMDbClone.WebAPI.Controllers
         [HttpGet("roles")]
         [ProducesResponseType(typeof(APIResponse<IEnumerable<string>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllRoles()
         {
             try
@@ -61,6 +64,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -106,6 +111,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> AddUserToRole(string userId, [FromBody] string roleName)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(roleName))
@@ -150,6 +157,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> UpdateRoles(string userId, [FromBody] IEnumerable<string> roles)
         {
             if (string.IsNullOrEmpty(userId) || roles == null || !roles.Any())
@@ -195,6 +204,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> RemoveUserFromRole(string userId, [FromBody] string roleName)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(roleName))
@@ -235,6 +246,9 @@ namespace IMDbClone.WebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(APIResponse<PaginatedResult<UserDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllUsers(
              [FromQuery] string? filter = null,
              [FromQuery] bool isAscending = true,
@@ -284,6 +298,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetUserById(string userId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -322,6 +338,8 @@ namespace IMDbClone.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> RemoveUser(string userId)
         {
             if (string.IsNullOrEmpty(userId))

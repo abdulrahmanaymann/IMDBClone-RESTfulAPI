@@ -10,9 +10,11 @@ namespace IMDbClone.Core.Models
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
+
         [JsonConverter(typeof(GenreEnumConverter))]
         public GenreEnum Genre { get; set; }  // Enum for genre like Action, Drama, etc.
         public DateTime ReleaseDate { get; set; } = DateTime.UtcNow;
+        [MaxLength(1000)]
         public string Synopsis { get; set; } = string.Empty; // Short description of the movie
         [Url]
         public string? PosterUrl { get; set; }

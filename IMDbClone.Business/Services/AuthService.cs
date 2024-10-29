@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using AutoMapper;
 using IMDbClone.Business.Services.IServices;
-using IMDbClone.Common;
+using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.AuthDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.Models;
@@ -74,7 +74,7 @@ namespace IMDbClone.Business.Services
                 };
             }
 
-            var token = _tokenService.CreateToken(user);
+            var token = await _tokenService.CreateToken(user);
             var refreshToken = _tokenService.CreateRefreshToken();
 
             user.RefreshToken = refreshToken;
@@ -194,7 +194,7 @@ namespace IMDbClone.Business.Services
                 };
             }
 
-            var newToken = _tokenService.CreateToken(user);
+            var newToken = await _tokenService.CreateToken(user);
             var newRefreshToken = _tokenService.CreateRefreshToken();
 
             user.RefreshToken = newRefreshToken;

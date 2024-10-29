@@ -5,7 +5,7 @@ namespace IMDbClone.Business.Services.IServices
 {
     public interface ITokenService
     {
-        string CreateToken(ApplicationUser user);
+        Task<string> CreateToken(ApplicationUser user);
 
         string CreateRefreshToken();
 

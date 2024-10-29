@@ -2,7 +2,6 @@
 using IMDbClone.Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace IMDbClone.DataAccess.Data
 {
@@ -13,39 +12,9 @@ namespace IMDbClone.DataAccess.Data
         {
             modelBuilder.Entity<Movie>()
             .Property(m => m.Genre)
-            .HasConversion(new EnumToStringConverter<GenreEnum>());
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.Title)
-                .HasDatabaseName("IX_Movies_Title");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.Synopsis)
-                .HasDatabaseName("IX_Movies_Synopsis");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.Genre)
-                .HasDatabaseName("IX_Movies_Genre");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.Director)
-                .HasDatabaseName("IX_Movies_Director");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => new { m.Director, m.Genre })
-                .HasDatabaseName("IX_Movies_Director_Genre");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.Language)
-                .HasDatabaseName("IX_Movies_Language");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => m.ReleaseDate)
-                .HasDatabaseName("IX_Movies_ReleaseDate");
-
-            modelBuilder.Entity<Movie>()
-                .HasIndex(m => new { m.Genre, m.ReleaseDate })
-                .HasDatabaseName("IX_Movies_Genre_ReleaseDate");
+            .HasConversion(
+            v => v.ToString(),
+            v => (GenreEnum)Enum.Parse(typeof(GenreEnum), v));
 
             modelBuilder.Entity<Rating>()
                 .HasIndex(r => r.MovieId)
