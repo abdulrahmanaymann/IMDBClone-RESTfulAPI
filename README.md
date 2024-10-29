@@ -120,15 +120,19 @@ Handles watchlists for users, allowing them to manage their movie collections.
 | `/api/watchlist`        | POST   | Add a movie to the user’s watchlist                 |
 | `/api/watchlist/{id}`   | DELETE | Remove a movie from the user’s watchlist            |
 
-### 6. **UserController** 👤
-Manages user profiles and administrative account operations.
+### 6. **UserController** 👤  
+Manages user profiles, roles, and administrative account operations.
 
-| Endpoint                | Method | Description                                         |
-|-------------------------|--------|-----------------------------------------------------|
-| `/api/users`            | GET    | Retrieve all registered users                       |
-| `/api/users/{id}`       | GET    | Retrieve a specific user profile                    |
-| `/api/users/{id}`       | PUT    | Update a specific user profile                      |
-| `/api/users/{id}`       | DELETE | Delete a user from the system                       |
+| Endpoint                     | Method | Description                                    | Auth Required |
+|------------------------------|--------|------------------------------------------------|---------------|
+| `/api/users`                 | GET    | Retrieve all registered users with filtering   | ✅ |
+| `/api/users/{userId}`        | GET    | Retrieve a specific user profile by ID         | ✅ |
+| `/api/users/{userId}`        | DELETE | Delete a specific user from the system         | ✅ |
+| `/api/users/{userId}/roles`  | GET    | Retrieve roles assigned to a specific user     | ✅ |
+| `/api/users/{userId}/roles`  | POST   | Assign a role to a specific user               | ✅ |
+| `/api/users/{userId}/roles`  | PUT    | Update roles assigned to a specific user       | ✅ |
+| `/api/users/{userId}/roles`  | DELETE | Remove a role from a specific user             | ✅ |
+| `/api/users/roles`           | GET    | Retrieve all available roles                   | ✅ |
 
 ---
 
