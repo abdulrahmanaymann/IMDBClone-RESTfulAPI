@@ -15,6 +15,7 @@
         public static string ReviewByMovieId(int movieId) => $"Review_Movie_{movieId}";
 
         public const string AllWatchlists = "AllWatchlists";
+        public const string MoviesCount = "MoviesCount";
 
         public static string WatchlistByUserId(string userId) => $"Watchlist_User_{userId}";
 

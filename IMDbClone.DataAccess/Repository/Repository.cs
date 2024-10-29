@@ -110,5 +110,12 @@ namespace IMDbClone.DataAccess.Repository
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? filter)
+        {
+            ArgumentNullException.ThrowIfNull(filter);
+
+            return await _dbSet.CountAsync(filter);
+        }
     }
 }

@@ -24,5 +24,7 @@ namespace IMDbClone.DataAccess.Repository.IRepository
         Task RemoveRangeAsync(IEnumerable<T> entities);
 
         Task SaveChangesAsync();
+        
+        Task<int> CountAsync(Expression<Func<T, bool>>? filter);
     }
 }

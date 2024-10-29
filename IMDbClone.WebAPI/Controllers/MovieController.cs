@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Net;
+﻿using System.Net;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.MovieDTOs;
@@ -51,26 +50,23 @@ namespace IMDbClone.WebAPI.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than zero.");
+            }
+
             try
             {
                 var filter = PredicateBuilder.New<Movie>(true);
-                bool isValidFilter = true;
 
                 if (!string.IsNullOrEmpty(search))
                 {
                     filter = filter.And(m => m.Title.Contains(search) || m.Synopsis.Contains(search));
                 }
 
-                if (!string.IsNullOrEmpty(genre))
+                if (!string.IsNullOrEmpty(genre) && Enum.TryParse<GenreEnum>(genre, true, out var genreEnum))
                 {
-                    if (Enum.TryParse<GenreEnum>(genre, true, out var genreEnum))
-                    {
-                        filter = filter.And(m => m.Genre == genreEnum);
-                    }
-                    else
-                    {
-                        isValidFilter = false;
-                    }
+                    filter = filter.And(m => m.Genre == genreEnum);
                 }
 
                 if (!string.IsNullOrEmpty(director))
@@ -88,10 +84,9 @@ namespace IMDbClone.WebAPI.Controllers
                     filter = filter.And(m => m.ReleaseDate.Date == releaseDate.Value.Date);
                 }
 
-                Expression<Func<Movie, object>>? orderByExpression = null;
-                if (!string.IsNullOrEmpty(sortBy))
-                {
-                    orderByExpression = sortBy.ToLower() switch
+                var movies = await _movieService.GetAllMoviesAsync(
+                    filter: filter,
+                    orderByExpression: sortBy?.ToLower() switch
                     {
                         "title" => m => m.Title,
                         "releasedate" => m => m.ReleaseDate,
@@ -99,23 +94,7 @@ namespace IMDbClone.WebAPI.Controllers
                         "director" => m => m.Director,
                         "language" => m => m.Language,
                         _ => null
-                    };
-
-                    if (orderByExpression == null)
-                    {
-                        isValidFilter = false;
-                    }
-                }
-
-                if (!isValidFilter)
-                {
-                    return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(new List<MovieSummaryDTO>(),
-                        HttpStatusCode.NoContent));
-                }
-
-                var movies = await _movieService.GetAllMoviesAsync(
-                    filter: filter,
-                    orderByExpression: orderByExpression,
+                    },
                     isAscending: isAscending,
                     pageNumber: pageNumber,
                     pageSize: pageSize

@@ -25,5 +25,7 @@ namespace IMDbClone.Business.Services.IServices
         Task<PaginatedResult<MovieSummaryDTO>> GetTopRatedMoviesAsync(int pageNumber, int pageSize);
 
         Task<PaginatedResult<MovieSummaryDTO>> GetMostPopularMoviesAsync(int pageNumber, int pageSize);
+
+        Task<int> GetMoviesCountAsync(Expression<Func<Movie, bool>>? filter = null);
     }
 }

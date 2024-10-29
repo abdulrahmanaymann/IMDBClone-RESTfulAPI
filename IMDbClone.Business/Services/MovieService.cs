@@ -23,21 +23,26 @@ namespace IMDbClone.Business.Services
             _cacheService = cacheService;
         }
 
-        public async Task<PaginatedResult<MovieSummaryDTO>> GetAllMoviesAsync(
-            Expression<Func<Movie, bool>>? filter = null,
-            Expression<Func<Movie, object>>? orderByExpression = null,
-            bool isAscending = true,
-            int pageNumber = 1,
-            int pageSize = 10)
+        public async Task<int> GetMoviesCountAsync(Expression<Func<Movie, bool>>? filter = null)
         {
-            if (pageNumber < 1)
-            {
-                throw new ApiException("Page number must be greater than zero.", HttpStatusCodes.BadRequest);
-            }
+            var cacheKey = CacheKeys.MoviesCount;
 
-            if (pageSize < 1)
+            return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                throw new ApiException("Page size must be greater than zero.", HttpStatusCodes.BadRequest);
+                return await _unitOfWork.Movie.CountAsync(filter);
+            });
+        }
+
+        public async Task<PaginatedResult<MovieSummaryDTO>> GetAllMoviesAsync(
+             Expression<Func<Movie, bool>>? filter = null,
+             Expression<Func<Movie, object>>? orderByExpression = null,
+             bool isAscending = true,
+             int pageNumber = 1,
+             int pageSize = 10)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                throw new ApiException("Page number and page size must be greater than zero.", HttpStatusCodes.BadRequest);
             }
 
             var cacheKey = CacheKeys.AllMovies;
@@ -45,32 +50,25 @@ namespace IMDbClone.Business.Services
 
             return await _cacheService.GetOrCreateAsync(cacheKey, async () =>
             {
-                try
-                {
-                    var movies = await _unitOfWork.Movie.GetAllAsync(
-                        filter: filter,
-                        includeProperties: "Reviews,Ratings",
-                        orderByExpression: orderByExpression ??
-                                (isAscending ? m => m.Title : (m => m.Title)),
-                        isAscending: isAscending,
-                        pageNumber: pageNumber,
-                        pageSize: pageSize,
-                        trackChanges: false
-                    );
+                var movies = await _unitOfWork.Movie.GetAllAsync(
+                    filter: filter,
+                    includeProperties: "Reviews,Ratings",
+                    orderByExpression: orderByExpression,
+                    isAscending: isAscending,
+                    pageNumber: pageNumber,
+                    pageSize: pageSize,
+                    trackChanges: false
+                );
 
-                    return new PaginatedResult<MovieSummaryDTO>
-                    {
-                        Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(movies.Items),
-                        TotalCount = movies.TotalCount,
-                        PageNumber = movies.PageNumber,
-                        PageSize = movies.PageSize
-                    };
-                }
-                catch (Exception ex)
+                var totalCount = await GetMoviesCountAsync(filter);
+
+                return new PaginatedResult<MovieSummaryDTO>
                 {
-                    throw new ApiException("An error occurred while retrieving movies.",
-                        HttpStatusCodes.InternalServerError, ex);
-                }
+                    Items = _mapper.Map<IEnumerable<MovieSummaryDTO>>(movies.Items),
+                    TotalCount = totalCount,
+                    PageNumber = movies.PageNumber,
+                    PageSize = movies.PageSize
+                };
             });
         }
 
