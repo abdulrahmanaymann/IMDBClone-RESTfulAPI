@@ -1,10 +1,10 @@
 ![Logo](https://i.imgur.com/srymhmQ.png)
 
-# 🎬 IMDbClone RESTful API
+# 🎬 IMDBClone RESTful API
 
 ## 📝 Description
 
-The **IMDbClone RESTful API** is a backend application that replicates key features of IMDb, managing movie-related data, user authentication, ratings, reviews, and watchlists. It supports secure authentication and role-based access controls, allowing for flexible management of users and interactions.
+The **IMDBClone RESTful API** is a backend application that replicates key features of IMDb, managing movie-related data, user authentication, ratings, reviews, and watchlists. It supports secure authentication and role-based access controls, allowing for flexible management of users and interactions.
 
 ---
 
