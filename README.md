@@ -134,6 +134,7 @@ Manages user profiles and administrative account operations.
 
 ## 📁 Project Structure
 
+```
 IMDbClone
 │
 ├── IMDbClone.Business
@@ -222,16 +223,16 @@ IMDbClone
 │       └── MovieRepository.cs
 │
 ├── IMDbClone.WebAPI
-    ├── Controllers
-    │   ├── AuthController.cs
-    │   ├── MovieController.cs
-    │   ├── RatingController.cs
-    │   ├── ReviewController.cs
-    │   ├── UserController.cs             
-    │   └── WatchlistController.cs
-    ├── Program.cs
-    └── appsettings.json
-
+│   ├── Controllers
+│   │   ├── AuthController.cs
+│   │   ├── MovieController.cs
+│   │   ├── RatingController.cs
+│   │   ├── ReviewController.cs
+│   │   ├── UserController.cs             
+│   │   └── WatchlistController.cs
+│   ├── Program.cs
+│   └── appsettings.json
+```
 ---
 
 ## 📌 Getting Started
