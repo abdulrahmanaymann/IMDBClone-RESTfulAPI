@@ -1,10 +1,12 @@
-# IMDbClone RESTful API
+# 🎬 IMDbClone RESTful API
 
-## Description
+## 📝 Description
 
-The **IMDbClone RESTful API** is a backend application designed to provide a robust platform for managing movie-related data, user authentication, and user interactions similar to the well-known IMDb website. The API supports operations for movies, ratings, reviews, watchlists, and user management, leveraging secure authentication and role-based access controls.
+The **IMDbClone RESTful API** is a backend application that replicates key features of IMDb, managing movie-related data, user authentication, ratings, reviews, and watchlists. It supports secure authentication and role-based access controls, allowing for flexible management of users and interactions.
 
-## Technologies
+---
+
+## 🚀 Technologies
 
 - **Programming Language**: C#
 - **Framework**: ASP.NET Core
@@ -15,201 +17,236 @@ The **IMDbClone RESTful API** is a backend application designed to provide a rob
 - **Web Scraping**: Python
 - **External API**: TMDB API
 
-## Web Scraping and Data Fetching
+---
 
-The IMDbClone RESTful API also integrates Python for web scraping and data fetching:
+## 🌐 Data Integration
 
-- **Web Scraping**: Python scripts are used to gather additional movie-related data from various websites, enhancing the database with up-to-date information.
-- **TMDB API Integration**: The API fetches real-time movie data from The Movie Database (TMDB) API, ensuring users have access to the latest movie information.
+- **Web Scraping**: Uses Python scripts to gather additional movie data from external sources, enhancing the database with up-to-date information.
+- **TMDB API**: Integrates with The Movie Database (TMDB) API for real-time movie data fetching, ensuring users always have access to the latest information.
 
-## Architecture
+---
 
-The architecture of the IMDbClone RESTful API follows a layered structure to promote separation of concerns and maintainability, utilizing the Unit of Work and Repository patterns for efficient data access:
+## 🏗 Architecture
 
-1. **Business Layer**: Contains services and mapping profiles responsible for business logic and DTO mappings.
-2. **Common Layer**: Holds constants, enums, settings, and utility classes used throughout the application.
-3. **Core Layer**: Defines data models, DTOs, and validation attributes.
-4. **Data Access Layer**: Implements the Repository pattern for database interactions and manages the database context through the Unit of Work pattern, ensuring atomic operations and simplified transaction management.
-5. **Web API Layer**: Exposes RESTful endpoints through controllers, handling HTTP requests and responses.
+The API follows a layered architecture that promotes modularity and separation of concerns, utilizing Unit of Work and Repository patterns for efficient data handling.
 
-## Backend Structure
+- **Business Layer**: Contains services and mapping profiles for business logic and DTO mappings.
+- **Common Layer**: Stores constants, enums, settings, and utility classes.
+- **Core Layer**: Defines data models, DTOs, and validation attributes.
+- **Data Access Layer**: Manages database operations with Repository and Unit of Work patterns.
+- **Web API Layer**: Exposes RESTful endpoints to handle client interactions.
 
-The backend consists of several key components:
+---
+
+## 📂 Backend Structure
+
+### **Project Modules**
 
 - **IMDbClone.Business**
-  - **Mapper**: 
-    - `MappingProfile.cs`: Configures mappings between DTOs and models.
-  - **Services**: 
-    - Contains interfaces and implementations for handling various aspects of the application, including authentication, caching, and data management.
-
+  - **Services**: Interfaces and implementations for application functionalities like authentication, caching, and data management.
+  - **Mapper**: Configures mappings between DTOs and models.
+  
 - **IMDbClone.Common**
-  - **Constants**: Defines roles, HTTP status codes, and cache keys for consistent usage across the application.
-  - **Settings**: Manages cache and other configuration settings.
-
+  - **Constants**: Defines roles, HTTP status codes, and cache keys.
+  - **Settings**: Manages configurations for caching and other settings.
+  
 - **IMDbClone.Core**
-  - **DTOs**: Comprehensive data transfer objects for handling authentication, movies, ratings, reviews, users, and watchlists.
-  - **Models**: Entity models that represent the application's data structure.
-  - **Utilities**: Classes for pagination, expression handling, and validation.
-
+  - **DTOs**: Data transfer objects for movies, users, ratings, reviews, and watchlists.
+  - **Models**: Entity models defining the application's data structure.
+  - **Utilities**: Provides pagination, expression handling, and validation.
+  
 - **IMDbClone.DataAccess**
-  - **Repository**: Implements the repository pattern for data operations, including unit of work management and entity repositories.
-
+  - **Repository**: Implements data operations using Unit of Work for transactional integrity.
+  
 - **IMDbClone.WebAPI**
-  - **Controllers**: Handle HTTP requests and route them to the appropriate services.
+  - **Controllers**: Exposes API endpoints to handle requests and responses.
 
-## Controllers
+---
 
-### 1. **AuthController**
-The `AuthController` handles user authentication and profile management. It exposes the following endpoints:
+## 🎮 Controllers Overview
 
-#### Endpoints
 
-- **Register** (`POST /api/auth/register`): 
-  - **Description**: Allows users to create a new account by providing registration details. 
-  - **Response**: Returns a response indicating the result of the registration process.
+### 1. **AuthController** 🔒
+Handles user authentication and profile management operations.
 
-- **Login** (`POST /api/auth/login`): 
-  - **Description**: Authenticates users and generates a JWT token upon successful login. 
-  - **Response**: Returns the authentication tokens if the credentials are valid.
+| Endpoint                  | Method | Description                                | Auth Required |
+|---------------------------|--------|--------------------------------------------|---------------|
+| `/api/auth/register`      | POST   | Register a new user                        | ❌            |
+| `/api/auth/login`         | POST   | Login and receive JWT tokens               | ❌            |
+| `/api/auth/refresh-token` | POST   | Refresh access tokens                      | ✅            |
+| `/api/auth/profile`       | GET    | Retrieve profile of the logged-in user     | ✅            |
+| `/api/auth/profile`       | PUT    | Update profile of the logged-in user       | ✅            |
 
-- **Refresh Token** (`POST /api/auth/refresh-token`): 
-  - **Description**: Provides a mechanism to refresh expired authentication tokens by submitting the existing access and refresh tokens. 
-  - **Response**: Returns new tokens if the refresh process is successful.
+### 2. **MovieController** 🎬
+Manages movie data, including addition, retrieval, updating, and deletion.
 
-- **User Profile** (`GET /api/auth/profile`): 
-  - **Description**: Retrieves the profile information of the currently logged-in user. 
-  - **Response**: Requires authentication.
+| Endpoint                | Method | Description                                         |
+|-------------------------|--------|-----------------------------------------------------|
+| `/api/movies`           | GET    | Retrieve all movies with optional filters           |
+| `/api/movies/{id}`      | GET    | Retrieve details for a specific movie               |
+| `/api/movies`           | POST   | Add a new movie to the database                     |
+| `/api/movies/{id}`      | PUT    | Update existing movie details                       |
+| `/api/movies/{id}`      | DELETE | Remove a movie from the database                    |
 
-- **Update Profile** (`PUT /api/auth/profile`): 
-  - **Description**: Allows the logged-in user to update their profile information.
-  - **Response**: Requires authentication and returns the updated profile details.
+### 3. **RatingController** ⭐
+Controls movie ratings, allowing users to add, view, update, and delete ratings.
 
-### 2. **MovieController**
-The `MovieController` handles operations related to movies in the IMDb Clone API. Below are the available endpoints and their functionalities:
+| Endpoint                | Method | Description                            |
+|-------------------------|--------|----------------------------------------|
+| `/api/ratings`          | GET    | Retrieve all ratings                   |
+| `/api/ratings/{id}`     | GET    | Retrieve a specific rating             |
+| `/api/ratings`          | POST   | Submit a new rating                    |
+| `/api/ratings/{id}`     | PUT    | Update an existing rating              |
+| `/api/ratings/{id}`     | DELETE | Delete a rating                        |
 
-#### Endpoints
+### 4. **ReviewController** 📝
+Manages user reviews for movies, including retrieval, creation, updating, and deletion.
 
-- **GET /api/movies**
-  - **Description**: Retrieves a list of all movies.
-  - **Query Parameters**: 
-    - `page` (optional): The page number for pagination.
-    - `pageSize` (optional): The number of movies per page.
-    - `genre` (optional): Filter movies by genre.
-    - `title` (optional): Filter movies by title (case-insensitive).
-  - **Response**: Returns a paginated list of movies.
+| Endpoint                | Method | Description                                         |
+|-------------------------|--------|-----------------------------------------------------|
+| `/api/review`           | GET    | Retrieve all reviews                                |
+| `/api/review/{id}`      | GET    | Retrieve a specific review                          |
+| `/api/review`           | POST   | Create a new review                                 |
+| `/api/review/{id}`      | PUT    | Update an existing review                           |
+| `/api/review/{id}`      | DELETE | Delete a review                                     |
 
-- **GET /api/movies/{id}**
-  - **Description**: Fetches detailed information about a specific movie.
-  - **Path Parameters**:
-    - `id`: The unique identifier of the movie.
-  - **Response**: Returns the details of the movie, including title, release date, rating, and reviews.
+### 5. **WatchlistController** 🎥
+Handles watchlists for users, allowing them to manage their movie collections.
 
-- **POST /api/movies**
-  - **Description**: Allows the addition of new movies to the database.
-  - **Request Body**: Movie details such as title, release date, genre, etc.
-  - **Response**: Returns the created movie's details with a 201 Created status.
+| Endpoint                | Method | Description                                         |
+|-------------------------|--------|-----------------------------------------------------|
+| `/api/watchlist`        | GET    | Retrieve all movies in the user’s watchlist         |
+| `/api/watchlist/{id}`   | GET    | Retrieve details of a specific movie in watchlist   |
+| `/api/watchlist`        | POST   | Add a movie to the user’s watchlist                 |
+| `/api/watchlist/{id}`   | DELETE | Remove a movie from the user’s watchlist            |
 
-- **PUT /api/movies/{id}**
-  - **Description**: Updates existing movie details.
-  - **Path Parameters**:
-    - `id`: The unique identifier of the movie to be updated.
-  - **Request Body**: Updated movie details.
-  - **Response**: Returns the updated movie's details.
+### 6. **UserController** 👤  
+Manages user profiles, roles, and administrative account operations.
 
-- **DELETE /api/movies/{id}**
-  - **Description**: Removes a movie from the database.
-  - **Path Parameters**:
-    - `id`: The unique identifier of the movie to be deleted.
-  - **Response**: Returns a success message upon deletion.
+| Endpoint                     | Method | Description                                    | Auth Required |
+|------------------------------|--------|------------------------------------------------|---------------|
+| `/api/users`                 | GET    | Retrieve all registered users with filtering   | ✅ |
+| `/api/users/{userId}`        | GET    | Retrieve a specific user profile by ID         | ✅ |
+| `/api/users/{userId}`        | DELETE | Delete a specific user from the system         | ✅ |
+| `/api/users/{userId}/roles`  | GET    | Retrieve roles assigned to a specific user     | ✅ |
+| `/api/users/{userId}/roles`  | POST   | Assign a role to a specific user               | ✅ |
+| `/api/users/{userId}/roles`  | PUT    | Update roles assigned to a specific user       | ✅ |
+| `/api/users/{userId}/roles`  | DELETE | Remove a role from a specific user             | ✅ |
+| `/api/users/roles`           | GET    | Retrieve all available roles                   | ✅ |
 
-### 3. **RatingController**
-The `RatingController` manages operations related to movie ratings in the IMDb Clone API. Below are the available endpoints and their functionalities:
+---
 
-#### Endpoints
+## 📁 Project Structure
 
-- **GET /api/ratings**
-  - **Description**: Retrieves all ratings from the database.
-  - **Response**: Returns an API response containing a list of all ratings.
+```
+IMDbClone
+│
+├── IMDbClone.Business
+│   ├── Mapper
+│   │   └── MappingProfile.cs
+│   ├── Services
+│   │   ├── IServices
+│   │   │   └── IUserService.cs       
+│   │   ├── auth
+│   │   ├── cache
+│   │   ├── movie
+│   │   ├── rating
+│   │   ├── review
+│   │   ├── watchlist
+│   │   └── token
+│   │   └── user                     
+│   │       └── UserService.cs       
+│
+├── IMDbClone.Common
+│   ├── Constants
+│   │   ├── Roles.cs
+│   │   ├── HttpStatusCodes.cs
+│   │   └── CacheKeys.cs
+│   └── Settings
+│       └── CacheSettings.cs
+│
+├── IMDbClone.Core
+│   ├── DTOs
+│   │   ├── AuthDTOs
+│   │   │   ├── LoginRequestDTO.cs
+│   │   │   ├── LoginResponseDTO.cs
+│   │   │   ├── RefreshTokenRequestDTO.cs
+│   │   │   └── RegistrationRequestDTO.cs
+│   │   ├── MovieDTOs
+│   │   │   ├── CreateMovieDTO.cs
+│   │   │   ├── MovieDTO.cs
+│   │   │   ├── MovieSummaryDTO.cs
+│   │   │   └── UpdateMovieDTO.cs
+│   │   ├── RatingDTOs
+│   │   │   ├── CreateRatingDTO.cs
+│   │   │   ├── RatingDTO.cs
+│   │   │   └── UpdateRatingDTO.cs
+│   │   ├── ReviewDTOs
+│   │   │   ├── CreateReviewDTO.cs
+│   │   │   ├── ReviewDTO.cs
+│   │   │   └── UpdateReviewDTO.cs
+│   │   ├── UserDTOs
+│   │   │   ├── UserDTO.cs
+│   │   │   └── UserProfileDTO.cs
+│   │   └── WatchlistDTOs
+│   │       ├── CreateWatchlistDTO.cs
+│   │       └── WatchlistDTO.cs
+│   ├── Enums
+│   │   └── Genre.cs
+│   ├── Exceptions
+│   │   └── ApiException.cs
+│   ├── Models
+│   │   ├── ApplicationUser.cs
+│   │   ├── Movie.cs
+│   │   ├── Rating.cs
+│   │   ├── Review.cs
+│   │   └── Watchlist.cs
+│   ├── Responses
+│   │   └── APIResponse.cs
+│   ├── Utilities
+│   │   ├── PaginatedResult.cs
+│   │   └── ExpressionUtilities.cs
+│   └── Validation
+│       ├── FullNameAttribute.cs
+│       └── ValidCastAttribute.cs
+│
+├── IMDbClone.DataAccess
+│   ├── Data
+│   │   └── ApplicationDbContext.cs
+│   ├── DbInitializer
+│   │   └── DBInitializer.cs
+│   ├── Migrations
+│   └── Repository
+│       ├── IRepository
+│       ├── WatchlistRepository.cs
+│       ├── UserRepository.cs
+│       ├── UnitOfWork.cs
+│       ├── ReviewRepository.cs
+│       ├── Repository.cs
+│       ├── RatingRepository.cs
+│       └── MovieRepository.cs
+│
+├── IMDbClone.WebAPI
+│   ├── Controllers
+│   │   ├── AuthController.cs
+│   │   ├── MovieController.cs
+│   │   ├── RatingController.cs
+│   │   ├── ReviewController.cs
+│   │   ├── UserController.cs             
+│   │   └── WatchlistController.cs
+│   ├── Program.cs
+│   └── appsettings.json
+```
+---
 
-- **GET /api/ratings/{id}**
-  - **Description**: Retrieves a specific rating by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the rating to retrieve.
-  - **Response**: Returns an API response containing the requested rating.
+## 📌 Getting Started
 
-- **POST /api/ratings**
-  - **Description**: Allows users to submit a rating for a movie.
-  - **Request Body**: A `CreateRatingDTO` object containing the rating information, including the `MovieId` and the rating value.
-  - **Response**: Returns an API response indicating the result of the creation with a 201 Created status.
+1. Clone the repository.
+   ```bash
+   git clone https://github.com/yourusername/IMDbClone-API.git
+   ```
+2. Install dependencies and set up the database.
+3. Configure environment variables for database connection, JWT, TMDB API keys, and any other required settings.
+4. Run the application using your preferred IDE or command line.
 
-- **PUT /api/ratings/{id}**
-  - **Description**: Updates an existing rating submitted by a user.
-  - **Path Parameters**:
-    - `id`: The ID of the rating to update.
-  - **Request Body**: An `UpdateRatingDTO` object containing the updated rating information.
-  - **Response**: Returns an API response indicating the result of the update.
-
-- **DELETE /api/ratings/{id}**
-  - **Description**: Removes a user's rating for a movie.
-  - **Path Parameters**:
-    - `id`: The ID of the rating to delete.
-  - **Response**: Returns a success message with a 204 No Content status upon successful deletion.
-
-### 4. **ReviewController**
-The `ReviewController` manages movie reviews in the IMDbClone API. It provides endpoints for retrieving, creating, updating, and deleting reviews. The controller interacts with the `IReviewService` and `IMovieService` interfaces to handle business logic and data access.
-
-#### Endpoints
-
-- **GET /api/review**
-  - **Description**: Retrieves all reviews from the database.
-  - **Response**: Returns a list of reviews with a 200 OK status.
-
-- **GET /api/review/{id}**
-  - **Description**: Retrieves a single review by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the review to retrieve.
-  - **Response**: Returns the specified review with a 200 OK status.
-
-- **POST /api/review**
-  - **Description**: Creates a new review for a specified movie.
-  - **Request Body**: A `CreateReviewDTO` object containing the review details.
-  - **Response**: Returns the created review with a 201 Created status.
-
-- **PUT /api/review/{id}**
-  - **Description**: Updates an existing review by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the review to update.
-  - **Request Body**: An `UpdateReviewDTO` object containing the updated review details.
-  - **Response**: Returns the updated review with a 200 OK status.
-
-- **DELETE /api/review/{id}**
-  - **Description**: Deletes a review by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the review to delete.
-  - **Response**: Returns a 204 No Content status upon successful deletion.
-
-### 5. **WatchlistController**
-The `WatchlistController` is responsible for managing the watchlists of authenticated users in the IMDbClone application. This includes retrieving, adding, and removing movies from the user's watchlist.
-
-#### Endpoints
-
-- **GET /api/watchlist**
-  - **Description**: Retrieves all watchlists for the authenticated user. You can optionally filter the results by genre or movie title.
-  - **Response**: Returns a list of movies in the user's watchlist.
-
-- **GET /api/watchlist/{id}**
-  - **Description**: Retrieves the details of a specific movie in the user's watchlist by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the movie in the watchlist.
-  - **Response**: Returns the movie details if found.
-
-- **POST /api/watchlist**
-  - **Description**: Adds a movie to the user's watchlist.
-  - **Request Body**: A `CreateWatchlistDTO` object containing the movie ID.
-  - **Response**: Returns a success message and the updated watchlist.
-
-- **DELETE /api/watchlist/{id}**
-  - **Description**: Removes a movie from the user's watchlist by its ID.
-  - **Path Parameters**:
-    - `id`: The ID of the movie to remove.
-  - **Response**: Returns a success message confirming the removal.
+---
