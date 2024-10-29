@@ -3,7 +3,7 @@ using IMDbClone.Business.Mapper;
 using IMDbClone.Business.Services;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Settings;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.DbInitializer;
 using IMDbClone.DataAccess.Repository;
@@ -64,7 +64,8 @@ namespace IMDbClone.WebAPI
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ICacheService, CacheService>();
-            builder.Services.AddScoped<IDBInitializer, DBInitializer>();
+            builder.Services.AddScoped<IDBInitializer, DbInitializer>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddAuthentication(options =>
             {

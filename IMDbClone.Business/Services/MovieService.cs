@@ -3,8 +3,8 @@ using AutoMapper;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.MovieDTOs;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
 

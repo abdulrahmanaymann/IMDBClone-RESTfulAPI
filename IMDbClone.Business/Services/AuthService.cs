@@ -5,7 +5,7 @@ using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common;
 using IMDbClone.Core.DTOs.AuthDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Responses;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
@@ -92,7 +92,6 @@ namespace IMDbClone.Business.Services
             };
         }
 
-
         public async Task<APIResponse<UserDTO>> RegisterAsync(RegisterationRequestDTO registerDTO)
         {
             bool isUserUnique = await _unitOfWork.User.IsUniqueUser(registerDTO.UserName);
@@ -124,7 +123,7 @@ namespace IMDbClone.Business.Services
             catch (Exception ex)
             {
                 return APIResponse<UserDTO>.CreateErrorResponse(
-                    new List<string> { "An error occurred while creating the user. Please try again later." },
+                    new List<string> { ex.Message },
                     HttpStatusCode.InternalServerError);
             }
         }

@@ -1,4 +1,4 @@
-﻿using IMDbClone.Core.Entities;
+﻿using IMDbClone.Core.Models;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository.IRepository;
 

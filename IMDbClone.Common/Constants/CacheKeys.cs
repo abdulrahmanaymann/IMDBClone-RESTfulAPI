@@ -23,5 +23,8 @@
 
         public static string MostPopularMovies(int pageNumber, int pageSize)
                     => $"most_popular_movies_{pageNumber}_{pageSize}";
+
+        public static string UserById(string userId) => $"User_{userId}";
+        public static string AllUsers(int pageNumber, int pageSize) => $"AllUsers_{pageNumber}_{pageSize}";
     }
 }

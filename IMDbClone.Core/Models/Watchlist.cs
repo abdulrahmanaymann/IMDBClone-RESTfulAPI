@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace IMDbClone.Core.Entities
+namespace IMDbClone.Core.Models
 {
     public class Watchlist
     {

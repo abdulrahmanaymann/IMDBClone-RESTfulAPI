@@ -1,13 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using IMDbClone.Core.Enums;
+using IMDbClone.Core.Utilities;
+using Newtonsoft.Json;
 
-namespace IMDbClone.Core.Entities
+namespace IMDbClone.Core.Models
 {
     public class Movie
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
+        [JsonConverter(typeof(GenreEnumConverter))]
         public GenreEnum Genre { get; set; }  // Enum for genre like Action, Drama, etc.
         public DateTime ReleaseDate { get; set; } = DateTime.UtcNow;
         public string Synopsis { get; set; } = string.Empty; // Short description of the movie

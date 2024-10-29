@@ -3,8 +3,8 @@ using System.Net;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common;
 using IMDbClone.Core.DTOs.MovieDTOs;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Enums;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Responses;
 using LinqKit;
 using Microsoft.AspNetCore.Authorization;
@@ -119,7 +119,6 @@ namespace IMDbClone.WebAPI.Controllers
                     isAscending: isAscending,
                     pageNumber: pageNumber,
                     pageSize: pageSize
-
                 );
 
                 return Ok(APIResponse<IEnumerable<MovieSummaryDTO>>.CreateSuccessResponse(movies.Items));

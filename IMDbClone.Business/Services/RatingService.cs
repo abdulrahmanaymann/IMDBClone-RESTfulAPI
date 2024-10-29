@@ -2,8 +2,8 @@
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.RatingDTOs;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
 

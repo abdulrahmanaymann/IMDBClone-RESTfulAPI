@@ -1,6 +1,6 @@
 ﻿using IMDbClone.Common.Constants;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Data;
 using IMDbClone.DataAccess.Repository.IRepository;

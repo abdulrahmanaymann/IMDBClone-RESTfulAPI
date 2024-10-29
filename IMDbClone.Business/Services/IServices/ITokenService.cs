@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 
 namespace IMDbClone.Business.Services.IServices
 {

@@ -5,7 +5,7 @@ using IMDbClone.Core.DTOs.RatingDTOs;
 using IMDbClone.Core.DTOs.ReviewDTOs;
 using IMDbClone.Core.DTOs.UserDTOs;
 using IMDbClone.Core.DTOs.WatchlistDTOs;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.Business.Mapper

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using IMDbClone.Core.DTOs.MovieDTOs;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 
 namespace IMDbClone.Business.Services.IServices

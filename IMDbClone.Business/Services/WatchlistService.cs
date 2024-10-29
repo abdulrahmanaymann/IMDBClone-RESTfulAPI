@@ -2,8 +2,8 @@
 using AutoMapper;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.WatchlistDTOs;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Utilities;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Http;

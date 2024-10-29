@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace IMDbClone.Core.Entities
+namespace IMDbClone.Core.Models
 {
     public class ApplicationUser : IdentityUser
     {

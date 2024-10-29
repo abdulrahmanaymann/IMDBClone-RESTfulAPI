@@ -1,6 +1,8 @@
-﻿using IMDbClone.Core.Entities;
+﻿using IMDbClone.Core.Enums;
+using IMDbClone.Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace IMDbClone.DataAccess.Data
 {
@@ -9,6 +11,10 @@ namespace IMDbClone.DataAccess.Data
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Movie>()
+            .Property(m => m.Genre)
+            .HasConversion(new EnumToStringConverter<GenreEnum>());
+
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.Title)
                 .HasDatabaseName("IX_Movies_Title");

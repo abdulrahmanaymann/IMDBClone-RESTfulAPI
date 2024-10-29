@@ -3,7 +3,7 @@ using System.Net;
 using System.Security.Claims;
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Core.DTOs.WatchlistDTOs;
-using IMDbClone.Core.Entities;
+using IMDbClone.Core.Models;
 using IMDbClone.Core.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

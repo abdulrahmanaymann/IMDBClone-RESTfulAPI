@@ -1,4 +1,4 @@
-﻿using IMDbClone.Core.Entities;
+﻿using IMDbClone.Core.Models;
 
 namespace IMDbClone.DataAccess.Repository.IRepository
 {

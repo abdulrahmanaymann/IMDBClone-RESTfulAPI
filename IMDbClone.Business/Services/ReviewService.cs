@@ -2,8 +2,8 @@
 using IMDbClone.Business.Services.IServices;
 using IMDbClone.Common.Constants;
 using IMDbClone.Core.DTOs.ReviewDTOs;
-using IMDbClone.Core.Entities;
 using IMDbClone.Core.Exceptions;
+using IMDbClone.Core.Models;
 using IMDbClone.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Http;
 
