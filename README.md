@@ -1,3 +1,5 @@
+![Logo](https://i.imgur.com/abc123.jpg)
+
 # 🎬 IMDbClone RESTful API
 
 ## 📝 Description
